@@ -1,0 +1,54 @@
+name: Build test app
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: build-zh
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Select Xcode 27
+        run: |
+          if ls -d /Applications/Xcode_27*.app >/dev/null 2>&1; then
+            sudo xcode-select -s "$(ls -d /Applications/Xcode_27*.app | head -1)"
+          fi
+          xcodebuild -version
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install pods
+        run: pnpm -C apps/browser pods
+      - name: Fetch the prebuilt engine
+        run: packages/ardiacore/scripts/fetch-engine.sh
+      - name: Build the app
+        run: |
+          cd apps/browser
+          xcodebuild -workspace macos/Ardia.xcworkspace -scheme Ardia-macOS \
+            -derivedDataPath build -destination 'platform=macOS,arch=arm64' \
+            -configuration Release -quiet -hideShellScriptEnvironment \
+            CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_ENTITLEMENTS="" DEVELOPMENT_TEAM="" PROVISIONING_PROFILE_SPECIFIER="" \
+            PRODUCT_BUNDLE_IDENTIFIER=com.ardia.browser.zhdev build
+      - name: Package the app
+        run: |
+          cd apps/browser
+          ditto -c -k --keepParent build/Build/Products/Release/Ardia.app Ardia-zh.zip
+          ls -lh Ardia-zh.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ardia-zh
+          path: apps/browser/Ardia-zh.zip
+          compression-level: 0
+          retention-days: 7
