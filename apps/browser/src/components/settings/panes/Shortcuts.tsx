@@ -95,7 +95,7 @@ export function ShortcutsPane() {
       )}
       {menus.map((menu) => (
         <View key={menu}>
-          <SectionHeader title={menu} />
+          <SectionHeader title={t(menu)} />
           <Group>
             {shown
               .filter((i) => (i.path[0] ?? "") === menu)
@@ -104,14 +104,14 @@ export function ShortcutsPane() {
                 return (
                   <Row
                     key={item.id}
-                    title={item.title}
+                    title={t(item.title)}
                     description={
                       others.length ? (
                         <Text size="caption" tone="warning" style={CONFLICT}>
-                          {`${others.length === 1 ? t("This shortcut conflicts with another shortcut:") : t("This shortcut conflicts with other shortcuts:")} ${others.map((o) => o.title).join(", ")}`}
+                          {`${others.length === 1 ? t("This shortcut conflicts with another shortcut:") : t("This shortcut conflicts with other shortcuts:")} ${others.map((o) => t(o.title)).join(", ")}`}
                         </Text>
                       ) : item.path.length > 1 ? (
-                        item.path.slice(1).join(" › ")
+                        item.path.slice(1).map((p) => t(p)).join(" › ")
                       ) : undefined
                     }
                   >

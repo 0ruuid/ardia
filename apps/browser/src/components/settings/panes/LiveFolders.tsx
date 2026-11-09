@@ -11,7 +11,7 @@ import { live, updateConfig, updateFolder, useLive } from "../../../state/live/s
 import type { LiveAccount, LiveFolder, LiveSourceId } from "../../../state/live/types";
 import { useProfileRecords } from "../../../state/profiles/hooks";
 import { openUrlFromSettings, settingsBrowserWindow } from "../../../state/settings/settingsWindows";
-import { Box, Button, DialogActions, DialogTitle, Divider, proseLineHeight, Sheet, space, Text, TextField, Toggle } from "../../ui";
+import { Box, Button, DialogActions, DialogTitle, Divider, proseLineHeight, Sheet, space, Text, TextField, Toggle, useTranslate } from "../../ui";
 import { Favicon } from "../../favicon/Favicon";
 import { FormField, Group, Row, SectionHeader } from "../Form";
 import { setting, type SettingId } from "../settingsIndex";
@@ -163,9 +163,10 @@ const CODE = { ...settingsType.code, textAlign: "center", marginTop: space.xl } 
 const SPLIT = { marginVertical: space.xl } as const;
 
 function Help({ children }: { children: ReactNode }) {
+  const t = useTranslate();
   return (
     <Text size="small" tone="textSecondary" style={HELP}>
-      {children}
+      {typeof children === "string" ? t(children) : children}
     </Text>
   );
 }

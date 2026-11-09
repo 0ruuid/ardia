@@ -1,4 +1,5 @@
 import { showMenu } from "../../../state/app/system";
+import { useT } from "../../../state/i18n";
 import { Box, Button, Checkbox, DialogActions, DialogTitle, ink, lineHeight, proseLineHeight, radius, Sheet, space, Symbol, tabularNums, Text, TextField } from "../../ui";
 import {
   copyRecoveryKit,
@@ -254,6 +255,7 @@ export function showConnectDevice() {
 }
 
 function ConnectDeviceSheet() {
+  const t = useT();
   const [qr, setQr] = useState<string | null>(null);
   const [words, setWords] = useState<string[] | null>(null);
   return (
@@ -266,7 +268,7 @@ function ConnectDeviceSheet() {
       <Box row gap="xl" style={[SECTION_TOP, { alignItems: "center" }]}>
         <View style={QR_BOX}>{qr ? <Image source={{ uri: qr }} style={QR} /> : <Button title="Show Code" onPress={() => void recoveryQrCode()?.then(setQr)} />}</View>
         <Text size="small" tone="textSecondary" style={QR_NOTE}>
-          Or scan this code with your iPhone’s camera to copy the words, then paste them on your other Mac with Universal Clipboard.
+          {t("Or scan this code with your iPhone’s camera to copy the words, then paste them on your other Mac with Universal Clipboard.")}
         </Text>
       </Box>
       {words ? (

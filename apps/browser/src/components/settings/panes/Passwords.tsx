@@ -110,7 +110,7 @@ export function PasswordsPane({ profileId: initial }: { profileId?: string | nul
         </Box>
       ) : (
         <>
-          <SectionHeader title={list ? plural(list.length, "Saved Password") : "Saved Passwords"} action={<SearchField value={query} onChangeText={setQuery} placeholder="Search" width={200} />} />
+          <SectionHeader title={list ? t("{count} saved passwords", { count: list.length }) : t("Saved Passwords")} action={<SearchField value={query} onChangeText={setQuery} placeholder="Search" width={200} />} />
           <Group>
             {list && shown.length === 0 ? (
               <Row title={query ? "No passwords match" : "No saved passwords"} />
