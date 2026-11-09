@@ -52,7 +52,7 @@ export type MenusNative = {
   setMenuState(state: Omit<MenuState, MenuBookmarkKey>): Promise<void>;
   setMenuBookmarks(bookmarks: Pick<MenuState, MenuBookmarkKey>): Promise<void>;
   menuShortcuts(): Promise<MenuShortcut[]>;
-  setMenuLanguage(language: string, table: Record<string, string>): Promise<void>;
+  setMenuLanguage(language: string, tableJSON: string): Promise<void>;
   recordShortcut(): Promise<{ key: string; modifiers: ShortcutModifier[] } | null>;
   cancelRecording(): Promise<void>;
 };
@@ -69,8 +69,8 @@ export function watchMenus(watcher: () => void): () => void {
   return () => void menuWatchers.delete(watcher);
 }
 
-export function setMenuLanguage(language: string, table: Record<string, string>): Promise<void> {
-  return Promise.resolve(nativeModule("ArdiaMenus").setMenuLanguage(language, table));
+export function setMenuLanguage(language: string, tableJSON: string): Promise<void> {
+  return Promise.resolve(nativeModule("ArdiaMenus").setMenuLanguage(language, tableJSON));
 }
 
 export function showMenu(items: MenuItem[]): Promise<string | null> {

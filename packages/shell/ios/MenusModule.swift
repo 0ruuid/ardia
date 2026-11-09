@@ -42,7 +42,9 @@ public class MenusModule: Module {
       DispatchQueue.main.async { promise.resolve(target.chosen) }
     }.runOnQueue(.main)
 
-    AsyncFunction("setMenuLanguage") { (language: String, table: [String: String]) in
+    AsyncFunction("setMenuLanguage") { (language: String, tableJSON: String) in
+      guard let data = tableJSON.data(using: .utf8),
+            let table = try? JSONDecoder().decode([String: String].self, from: data) else { return }
       guard MenuTranslator.apply(language: language, table: table) else { return }
       NSApp.mainMenu = MainMenu.build()
     }.runOnQueue(.main)

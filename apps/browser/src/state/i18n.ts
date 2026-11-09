@@ -1,13 +1,16 @@
 import { useMemo } from "react";
 import { useBrowser } from "./browser/store";
 import { resolveUiLanguage, type LanguageSetting, type UiLanguage } from "../lib/i18n/languages";
+import { setActiveLanguage } from "../lib/i18n/active";
 import { menuTable } from "../lib/i18n/menu";
 import { translatorFor, type Translate } from "../lib/i18n/translate";
 import { setMenuLanguage } from "../platform/menus";
 import { systemLanguages } from "../platform/locale";
 
 export function uiLanguage(setting: LanguageSetting): UiLanguage {
-  return resolveUiLanguage(setting, systemLanguages());
+  const language = resolveUiLanguage(setting, systemLanguages());
+  setActiveLanguage(language);
+  return language;
 }
 
 export function useUiLanguage(): UiLanguage {
@@ -34,7 +37,9 @@ export function startMenuLanguage(): () => void {
     const language = uiLanguage(useBrowser.getState().settings.language);
     if (language === sent) return;
     sent = language;
-    void setMenuLanguage(language, menuTable(language)).catch(() => {});
+    void setMenuLanguage(language, JSON.stringify(menuTable(language))).catch(() => {
+      sent = null;
+    });
   };
   sync();
   return useBrowser.subscribe((s, prev) => s.settings !== prev.settings && sync());
