@@ -4,6 +4,7 @@ import { curve, duration } from "./motion";
 import { Panel } from "./Panel";
 import { Text } from "./Text";
 import { useTheme } from "./theme";
+import { useTranslate } from "./Translate";
 import { proseLineHeight, radius, shadow, sheetWidth, space, type SheetSize, type Space } from "./tokens";
 
 const CENTERED: StyleProp<ViewStyle> = [StyleSheet.absoluteFill, { alignItems: "center", justifyContent: "center" }];
@@ -115,15 +116,16 @@ const TITLE_TEXT = { flex: 1 } as const;
 const SUBTITLE = { lineHeight: proseLineHeight.small, marginTop: space.s } as const;
 
 export function DialogTitle({ icon, subtitle, children }: { icon?: ReactNode; subtitle?: ReactNode; children: ReactNode }) {
+  const t = useTranslate();
   const title = (
     <Text size="title" weight="semibold">
-      {children}
+      {typeof children === "string" ? t(children) : children}
     </Text>
   );
   const sub =
     subtitle == null || subtitle === false ? null : typeof subtitle === "string" ? (
       <Text size="small" tone="textSecondary" style={SUBTITLE}>
-        {subtitle}
+        {t(subtitle)}
       </Text>
     ) : (
       subtitle
