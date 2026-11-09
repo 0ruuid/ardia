@@ -40,7 +40,7 @@ jobs:
             -configuration Release -quiet -hideShellScriptEnvironment \
             CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=YES \
             CODE_SIGN_ENTITLEMENTS="" DEVELOPMENT_TEAM="" PROVISIONING_PROFILE_SPECIFIER="" \
-            PRODUCT_BUNDLE_IDENTIFIER=com.ardia.browser.zhdev build
+            PRODUCT_BUNDLE_IDENTIFIER=com.ardia.browser build
       - name: Package the app
         run: |
           cd apps/browser
