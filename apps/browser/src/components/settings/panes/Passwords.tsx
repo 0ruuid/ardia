@@ -20,6 +20,7 @@ import { importPasswordsCsv, revealPassword, unlockPasswordsFor, usePasswordsUnl
 import { hostLabel, matchesQuery } from "../../pages/PageLayout";
 import { Favicon } from "../../favicon/Favicon";
 import { Group, ProfilePicker, Row, SectionHeader, useSettingsProfile } from "../Form";
+import { useT } from "../../../state/i18n";
 import { settingsLayout } from "../tokens";
 import { passwordAutofill, setPasswordAutofillFor } from "../../../state/settings/paneData";
 import { useResource } from "../../../state/settings/resources";
@@ -34,6 +35,7 @@ function passwordManagerAppsNote() {
 
 export function PasswordsPane({ profileId: initial }: { profileId?: string | null }) {
   const theme = useTheme();
+  const t = useT();
   const [profileId, setProfileId] = useSettingsProfile(initial);
   const [list, setList] = useState<SavedPassword[] | null>(null);
   const [never, setNever] = useState<string[]>([]);
@@ -99,10 +101,10 @@ export function PasswordsPane({ profileId: initial }: { profileId?: string | nul
         <Box gap="ml" style={LOCKED}>
           <Symbol name="lock.fill" size={26} color={theme.textTertiary} style={LOCK_ICON} />
           <Text size="title" weight="medium">
-            Passwords are locked
+            {t("Passwords are locked")}
           </Text>
           <Text size="small" tone="textSecondary">
-            Unlock with Touch ID or your login password to see them.
+            {t("Unlock with Touch ID or your login password to see them.")}
           </Text>
           <Button title="Unlock" kind="primary" onPress={() => void unlockPasswordsFor(profile)} />
         </Box>

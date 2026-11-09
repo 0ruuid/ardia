@@ -15,6 +15,7 @@ import { useProfile, useProfiles, useSettings } from "../../../state/browser/hoo
 import { sharingProfiles } from "../../../state/profiles/profiles";
 import { ClearDataDialog } from "../../pages/ClearDataDialog";
 import { Group, PaneIntro, Row, SectionHeader } from "../Form";
+import { useT } from "../../../state/i18n";
 import { ColorStack } from "../../profiles/CreateProfile";
 import { PROFILE_SYMBOLS, ProfileBadge } from "../../profiles/ProfileIcons";
 import { iconSymbol } from "../../../lib/customIcon";
@@ -41,12 +42,12 @@ export function ProfilesPane() {
   const defaultId = useSettings((s) => s.defaultProfileId);
   const switcherIcons = useSettings((s) => s.profileSwitcherIcons);
   const shareable = useDataSharingProfileIds();
+  const t = useT();
 
   return (
     <View>
       <PaneIntro>
-        Profiles keep your browsing organized. Each keeps its own history, logins, cookies, and extensions, unless you turn on Share data
-        when you create it: then it uses another profile's, and only the tabs are its own.
+        {t("Profiles keep your browsing organized. Each keeps its own history, logins, cookies, and extensions, unless you turn on Share data when you create it: then it uses another profile's, and only the tabs are its own.")}
       </PaneIntro>
 
       <SectionHeader title="New windows open with" />
@@ -202,9 +203,10 @@ function ProfileRow({
       onPanResponderTerminationRequest: () => false,
     }),
   ).current;
+  const t = useT();
   if (!profile) return null;
 
-  const description = [isDefault ? "Default" : null, names.length ? `Shares data with ${listOf(names)}` : null].filter(Boolean).join(" · ");
+  const description = [isDefault ? t("Default") : null, names.length ? t("Shares data with {names}", { names: listOf(names) }) : null].filter(Boolean).join(" · ");
   const openMenu = () => openProfileItemMenu(profileId, "settings", SETTINGS_WINDOW_ID, badge.current);
 
   return (

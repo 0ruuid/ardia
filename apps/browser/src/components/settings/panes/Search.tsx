@@ -10,6 +10,7 @@ import { controllingSearchExtension, defaultSearchEngine, searchEngines } from "
 import { extensionsProfileId, setEnabled } from "../../../state/extensions/actions";
 import { Favicon } from "../../favicon/Favicon";
 import { FormField, Group, Row, SectionHeader, SettingToggle } from "../Form";
+import { useT } from "../../../state/i18n";
 import { closeSettingsSheet, showSettingsSheet } from "../../../state/settings/sheet";
 import { openSettings } from "../../../state/settings/settingsWindows";
 
@@ -88,6 +89,7 @@ export function SearchPane() {
 
 function EngineRow({ engine, selected, locked, editable }: { engine: SearchEngine; selected: boolean; locked: boolean; editable?: boolean }) {
   const theme = useTheme();
+  const t = useT();
   const description = engine.extension
     ? `${engine.keyword ? `${engine.keyword} · ` : ""}Added by ${engine.extension.name || "an extension"}`
     : engine.custom
@@ -102,7 +104,7 @@ function EngineRow({ engine, selected, locked, editable }: { engine: SearchEngin
         <Box row gap="xs" style={DEFAULT_MARK}>
           <Symbol name="checkmark" size={11} weight="semibold" color={theme.formAccent} style={{ width: 14, height: 14 }} />
           <Text size="small" tone="textSecondary">
-            Default
+            {t("Default")}
           </Text>
         </Box>
       ) : (
