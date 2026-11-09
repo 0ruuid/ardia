@@ -79,7 +79,7 @@ final class MenuTarget: NSObject, NSMenuItemValidation {
     }
     if menuItem.action == Self.undoAction {
       let reopens = Self.undoReopensClosedTab
-      let title = reopens ? "Undo Close Tab" : (menuItem as? StandardItem)?.defaultTitle ?? menuItem.title
+      let title = reopens ? MenuTranslator.text("Undo Close Tab") : (menuItem as? StandardItem)?.defaultTitle ?? menuItem.title
       if menuItem.title != title { menuItem.title = title }
       return reopens || Self.validateForwarded(menuItem, Self.undoAction)
     }

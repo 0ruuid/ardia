@@ -6,5 +6,6 @@ import { privacy } from "./privacy";
 import { tools } from "./tools";
 import { inline } from "./inline";
 import { commands } from "./commands";
+import { menu } from "./menu";
 
-export const zhHans: Record<string, string> = { ...chrome, ...general, ...profiles, ...tabs, ...privacy, ...tools, ...inline, ...commands };
+export const zhHans: Record<string, string> = { ...chrome, ...general, ...profiles, ...tabs, ...privacy, ...tools, ...inline, ...commands, ...menu };

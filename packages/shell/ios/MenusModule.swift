@@ -42,6 +42,10 @@ public class MenusModule: Module {
       DispatchQueue.main.async { promise.resolve(target.chosen) }
     }.runOnQueue(.main)
 
+    AsyncFunction("setMenuLanguage") { (language: String, table: [String: String]) in
+      guard MenuTranslator.apply(language: language, table: table) else { return }
+      NSApp.mainMenu = MainMenu.build()
+    }.runOnQueue(.main)
     AsyncFunction("menuShortcuts") { () -> [[String: Any]] in MainMenu.shortcutList() }.runOnQueue(.main)
 
     AsyncFunction("recordShortcut") { [weak self] (promise: Promise) in

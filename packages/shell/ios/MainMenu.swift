@@ -2,38 +2,39 @@ import AppKit
 import ArdiaCore
 
 enum MainMenu {
-  private static var moveToProfile = NSMenu(title: "Move to Profile")
-  private static var moveToWindow = NSMenu(title: "Move to Window")
-  private static var bookmarkToFolder = NSMenu(title: "Add Bookmark to Folder")
-  static var profiles = NSMenu(title: "Profiles")
-  private static var profilesItem = NSMenuItem(title: "Profiles", action: nil, keyEquivalent: "")
+  private static var moveToProfile = NSMenu(title: MenuTranslator.text("Move to Profile"))
+  private static var moveToWindow = NSMenu(title: MenuTranslator.text("Move to Window"))
+  private static var bookmarkToFolder = NSMenu(title: MenuTranslator.text("Add Bookmark to Folder"))
+  static var profiles = NSMenu(title: MenuTranslator.text("Profiles"))
+  private static var profilesItem = NSMenuItem(title: MenuTranslator.text("Profiles"), action: nil, keyEquivalent: "")
   private static var profilesSeparator = NSMenuItem.separator()
-  private static var littleArdiaInProfile = NSMenu(title: "New Little Ardia Window in Profile")
-  private static var littleArdiaInProfileItem = NSMenuItem(title: "New Little Ardia Window in Profile", action: nil, keyEquivalent: "")
-  private static var bookmarks = NSMenu(title: "Bookmarks")
+  private static var littleArdiaInProfile = NSMenu(title: MenuTranslator.text("New Little Ardia Window in Profile"))
+  private static var littleArdiaInProfileItem = NSMenuItem(title: MenuTranslator.text("New Little Ardia Window in Profile"), action: nil, keyEquivalent: "")
+  private static var bookmarks = NSMenu(title: MenuTranslator.text("Bookmarks"))
   private static var bookmarksFixedCount = 0
   private static var bookmarkItems: [NSMenuItem] = []
-  private static var history = NSMenu(title: "History")
-  private static var extensions = NSMenu(title: "Extensions")
+  private static var history = NSMenu(title: MenuTranslator.text("History"))
+  private static var extensions = NSMenu(title: MenuTranslator.text("Extensions"))
   private static var extensionIcons: [String: NSImage] = [:]
   private static var undo: StandardItem?
 
   static func build() -> NSMenu {
     let appName = ProcessInfo.processInfo.processName
     let main = NSMenu()
-    moveToProfile = NSMenu(title: "Move to Profile")
-    moveToWindow = NSMenu(title: "Move to Window")
-    bookmarkToFolder = NSMenu(title: "Add Bookmark to Folder")
-    profiles = NSMenu(title: "Profiles")
+    moveToProfile = NSMenu(title: MenuTranslator.text("Move to Profile"))
+    moveToWindow = NSMenu(title: MenuTranslator.text("Move to Window"))
+    bookmarkToFolder = NSMenu(title: MenuTranslator.text("Add Bookmark to Folder"))
+    profiles = NSMenu(title: MenuTranslator.text("Profiles"))
     profilesSeparator = NSMenuItem.separator()
-    littleArdiaInProfile = NSMenu(title: "New Little Ardia Window in Profile")
+    littleArdiaInProfile = NSMenu(title: MenuTranslator.text("New Little Ardia Window in Profile"))
 
-    func std(_ title: String, _ action: Selector) -> StandardItem { StandardItem(title, action) }
+    func std(_ title: String, _ action: Selector) -> StandardItem { StandardItem(MenuTranslator.text(title), action) }
     func sub(_ title: String, _ items: [NSMenuItem], menu: NSMenu? = nil) -> NSMenuItem {
-      let submenu = menu ?? NSMenu(title: title)
+      let localized = MenuTranslator.text(title)
+      let submenu = menu ?? NSMenu(title: localized)
       submenu.autoenablesItems = true
       items.flatMap(withAliases).forEach(submenu.addItem)
-      let root = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+      let root = NSMenuItem(title: localized, action: nil, keyEquivalent: "")
       root.submenu = submenu
       return root
     }
@@ -53,14 +54,14 @@ enum MainMenu {
     }
     bookmarkItems = []
 
-    let shareMenu = NSMenu(title: "Share")
+    let shareMenu = NSMenu(title: MenuTranslator.text("Share"))
     shareMenu.delegate = ShareMenu.shared
 
     let quit = std("Quit \(appName)", #selector(MenuTarget.quit(_:)))
     quit.target = MenuTarget.shared
     let closeWindow = std("Close Window", #selector(MenuTarget.closeWindow(_:)))
     closeWindow.target = MenuTarget.shared
-    let services = NSMenu(title: "Services")
+    let services = NSMenu(title: MenuTranslator.text("Services"))
     NSApp.servicesMenu = services
     _ = top(appName, [
       aboutItem("About \(appName)"),
@@ -307,13 +308,13 @@ enum MainMenu {
   }
 
   private static func aboutItem(_ title: String) -> NSMenuItem {
-    let item = NSMenuItem(title: title, action: #selector(AppUpdater.showAbout(_:)), keyEquivalent: "")
+    let item = NSMenuItem(title: MenuTranslator.text(title), action: #selector(AppUpdater.showAbout(_:)), keyEquivalent: "")
     item.target = AppUpdater.shared
     return item
   }
 
   private static func updatesItem() -> NSMenuItem {
-    let item = NSMenuItem(title: "Check for Updates…", action: #selector(AppUpdater.checkForUpdates(_:)), keyEquivalent: "")
+    let item = NSMenuItem(title: MenuTranslator.text("Check for Updates…"), action: #selector(AppUpdater.checkForUpdates(_:)), keyEquivalent: "")
     item.target = AppUpdater.shared
     return item
   }
@@ -380,7 +381,7 @@ enum MainMenu {
   }
 
   private static func emptyItem() -> NSMenuItem {
-    let item = NSMenuItem(title: "Empty", action: nil, keyEquivalent: "")
+    let item = NSMenuItem(title: MenuTranslator.text("Empty"), action: nil, keyEquivalent: "")
     item.isEnabled = false
     return item
   }
@@ -392,9 +393,9 @@ enum MainMenu {
     if children.isEmpty { menu.addItem(emptyItem()) }
     if let id, hasGroupLinks(children) {
       menu.addItem(.separator())
-      menu.addItem(CommandItem("Add to Sidebar as Group", "addFolderToSidebar", arg: id))
+      menu.addItem(CommandItem(MenuTranslator.text("Add to Sidebar as Group"), "addFolderToSidebar", arg: id))
       if arcHolder && children.contains(where: { $0.children.map(hasGroupLinks) ?? false }) {
-        menu.addItem(CommandItem("Restore Arc Folders as Groups", "restoreArcFolders", arg: id))
+        menu.addItem(CommandItem(MenuTranslator.text("Restore Arc Folders as Groups"), "restoreArcFolders", arg: id))
       }
     }
     item.submenu = menu
@@ -430,18 +431,18 @@ enum MainMenu {
         menu.addItem(item)
       }
     } else {
-      let item = CommandItem("New Window", "newWindow")
+      let item = CommandItem(MenuTranslator.text("New Window"), "newWindow")
       item.windowless = true
       menu.addItem(item)
     }
-    let incognito = CommandItem("New Incognito Window", "newIncognitoWindow")
+    let incognito = CommandItem(MenuTranslator.text("New Incognito Window"), "newIncognitoWindow")
     incognito.windowless = true
     menu.addItem(incognito)
-    let small = CommandItem("New Little Ardia Window", "newLittleArdia")
+    let small = CommandItem(MenuTranslator.text("New Little Ardia Window"), "newLittleArdia")
     small.windowless = true
     menu.addItem(small)
     if state.profiles.count > 1 {
-      let inProfile = NSMenu(title: "New Little Ardia Window in Profile")
+      let inProfile = NSMenu(title: MenuTranslator.text("New Little Ardia Window in Profile"))
       for p in state.profiles {
         let item = CommandItem(p.title, "newLittleArdia", arg: p.id)
         item.windowless = true
@@ -463,7 +464,7 @@ enum MainMenu {
       moveToProfile.addItem(item)
     }
     moveToProfile.addItem(.separator())
-    moveToProfile.addItem(CommandItem("New Profile…", "moveTabToProfile", arg: "new"))
+    moveToProfile.addItem(CommandItem(MenuTranslator.text("New Profile…"), "moveTabToProfile", arg: "new"))
 
     profiles.removeAllItems()
     profilesItem.isHidden = state.profiles.count < 2
@@ -492,26 +493,26 @@ enum MainMenu {
     moveToWindow.removeAllItems()
     for w in state.windows { moveToWindow.addItem(CommandItem(w.title, "moveTabToWindow", arg: w.id)) }
     if !state.windows.isEmpty { moveToWindow.addItem(.separator()) }
-    moveToWindow.addItem(CommandItem("New Window", "moveTabToWindow", arg: "new"))
+    moveToWindow.addItem(CommandItem(MenuTranslator.text("New Window"), "moveTabToWindow", arg: "new"))
   }
 
   private static func buildBookmarkMenus(_ state: MenuState) {
     bookmarkToFolder.removeAllItems()
     for f in state.bookmarks.bookmarkFolders { bookmarkToFolder.addItem(CommandItem(f.title, "addBookmarkToFolder", arg: f.id)) }
     bookmarkToFolder.addItem(.separator())
-    bookmarkToFolder.addItem(CommandItem("New Folder…", "addBookmarkToFolder", arg: "new"))
+    bookmarkToFolder.addItem(CommandItem(MenuTranslator.text("New Folder…"), "addBookmarkToFolder", arg: "new"))
 
     while bookmarks.items.count > bookmarksFixedCount { bookmarks.removeItem(at: bookmarksFixedCount) }
     bookmarks.addItem(.separator())
     if !state.bookmarks.recentBookmarks.isEmpty {
-      let header = NSMenuItem(title: "Recent Bookmarks", action: nil, keyEquivalent: "")
+      let header = NSMenuItem(title: MenuTranslator.text("Recent Bookmarks"), action: nil, keyEquivalent: "")
       header.isEnabled = false
       bookmarks.addItem(header)
       addBookmarks(state.bookmarks.recentBookmarks, to: bookmarks)
       bookmarks.addItem(.separator())
     }
-    bookmarks.addItem(folderItem("Bookmarks Bar", state.bookmarks.bookmarksBar, holdsArcHolders: true))
-    bookmarks.addItem(folderItem("Other Bookmarks", state.bookmarks.otherBookmarks))
+    bookmarks.addItem(folderItem(MenuTranslator.text("Bookmarks Bar"), state.bookmarks.bookmarksBar, holdsArcHolders: true))
+    bookmarks.addItem(folderItem(MenuTranslator.text("Other Bookmarks"), state.bookmarks.otherBookmarks))
   }
 
   private static func buildExtensions(_ state: MenuState) {
@@ -532,14 +533,14 @@ enum MainMenu {
     history.addItem(CommandItem(.showHistory))
     history.addItem(CommandItem(.clearBrowsingData))
     history.addItem(.separator())
-    let header = NSMenuItem(title: "Recently Closed", action: nil, keyEquivalent: "")
+    let header = NSMenuItem(title: MenuTranslator.text("Recently Closed"), action: nil, keyEquivalent: "")
     header.isEnabled = false
     history.addItem(header)
     for entry in state.recentlyClosed { history.addItem(CommandItem(entry.title, "restoreClosed", arg: entry.id)) }
     if state.recentlyClosed.isEmpty { history.addItem(emptyItem()) }
     if !state.recentlyClosedGroups.isEmpty {
       history.addItem(.separator())
-      let groupsHeader = NSMenuItem(title: "Recently Closed Groups", action: nil, keyEquivalent: "")
+      let groupsHeader = NSMenuItem(title: MenuTranslator.text("Recently Closed Groups"), action: nil, keyEquivalent: "")
       groupsHeader.isEnabled = false
       history.addItem(groupsHeader)
       for entry in state.recentlyClosedGroups { history.addItem(CommandItem(entry.title, "restoreClosed", arg: entry.id)) }

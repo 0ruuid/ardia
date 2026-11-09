@@ -1,1 +1,1 @@
-export { showMenu, menuShown, watchMenus, type MenuItem, type MenuEntry } from "@ardia/shell";
+export { showMenu, menuShown, watchMenus, setMenuLanguage, type MenuItem, type MenuEntry } from "@ardia/shell";

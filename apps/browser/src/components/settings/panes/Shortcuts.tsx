@@ -18,7 +18,7 @@ import { matchesQuery } from "../../pages/PageLayout";
 import { shortcutItems } from "../../../state/settings/paneData";
 import { useResource } from "../../../state/settings/resources";
 import { formatShortcut, sameShortcut, type Shortcut } from "../../../state/commands/shortcuts";
-import { useT } from "../../../state/i18n";
+import { useT, useUiLanguage } from "../../../state/i18n";
 
 type Filter = "all" | "customized" | "conflicts";
 
@@ -30,7 +30,9 @@ export function ShortcutsPane() {
   const profileOrder = useProfileOrder();
   const menuBar = useMenuBarRevision();
   const undoReopensClosedTab = useSettings((s) => s.undoReopensClosedTab);
-  const [loaded] = useResource(shortcutItems);
+  const [loaded, reload] = useResource(shortcutItems);
+  const language = useUiLanguage();
+  useEffect(() => { void reload(); }, [language]);
   const items = loaded ?? null;
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
