@@ -15,6 +15,7 @@ import { modePreview, stylePreview } from "../tokens";
 import { useSettingsColors } from "../useSettingsColors";
 import { APP_ICON_SIZE, appIconChoices, chooseAppIcon } from "../../../state/settings/paneData";
 import { useResource } from "../../../state/settings/resources";
+import { useT } from "../../../state/i18n";
 
 const MODES: { value: Settings["appearance"]; title: string; description: string }[] = [
   { value: "auto", title: "Automatic", description: "Follow the system appearance setting" },
@@ -23,6 +24,7 @@ const MODES: { value: Settings["appearance"]; title: string; description: string
 ];
 
 export function AppearancePane() {
+  const t = useT();
   const appearance = useSettings((s) => s.appearance);
   const spacesFollow = useSettings((s) => s.spacesFollowAppearance);
   const choose = (mode: Settings["appearance"]) => updateSettings({ appearance: mode });
@@ -32,7 +34,7 @@ export function AppearancePane() {
       <Box gap="xl">
         <Box row gap="xl">
           {MODES.map((m) => (
-            <ModeChoice key={m.value} mode={m.value} title={m.title} description={m.description} selected={appearance === m.value} onPress={() => choose(m.value)} />
+            <ModeChoice key={m.value} mode={m.value} title={t(m.title)} description={t(m.description)} selected={appearance === m.value} onPress={() => choose(m.value)} />
           ))}
         </Box>
         <Group>
@@ -60,6 +62,7 @@ const STYLES: { value: Settings["interfaceStyle"]; title: string }[] = [
 ];
 
 function InterfaceStylePicker() {
+  const t = useT();
   const style = useSettings((s) => s.interfaceStyle);
   const tinted = useSettings((s) => s.glassTintWithTheme);
   const tintAmount = useSettings((s) => s.glassTintAmount);
@@ -70,7 +73,7 @@ function InterfaceStylePicker() {
       <Box gap="xl">
         <Box row gap="xl">
           {STYLES.map((s) => (
-            <StyleChoice key={s.value} value={s.value} title={s.title} selected={style === s.value} onPress={() => updateSettings({ interfaceStyle: s.value })} />
+            <StyleChoice key={s.value} value={s.value} title={t(s.title)} selected={style === s.value} onPress={() => updateSettings({ interfaceStyle: s.value })} />
           ))}
         </Box>
         <Group>
@@ -113,6 +116,7 @@ const STYLE_TILES = { flex: 1 } as const;
 const STYLE_TILE = { flex: 1, alignSelf: "flex-start", height: 30, borderRadius: radius.tile } as const;
 
 function AddressBarPicker() {
+  const t = useT();
   const addressBar = useSettings((s) => s.addressBar);
   const placement = useSettings((s) => s.commandBarPlacement);
   const compactToolbar = useSettings((s) => s.compactToolbar);
@@ -124,22 +128,22 @@ function AddressBarPicker() {
         anchor="appearance.addressBar"
         description={
           topTabs
-            ? "Tabs are across the top of the window, so the address bar stays in the toolbar. Also in View › Show Address Bar in Sidebar."
-            : "In the sidebar, the page gets the toolbar’s height. While the sidebar is hidden, the address bar is in the toolbar. Also in View › Show Address Bar in Sidebar."
+            ? t("Tabs are across the top of the window, so the address bar stays in the toolbar. Also in View › Show Address Bar in Sidebar.")
+            : t("In the sidebar, the page gets the toolbar’s height. While the sidebar is hidden, the address bar is in the toolbar. Also in View › Show Address Bar in Sidebar.")
         }
       />
       <Box gap="xl">
         <Box row gap="xl">
-          <AddressBarChoice value="toolbar" title="In the toolbar" selected={addressBar !== "sidebar"} onPress={() => choose("toolbar")} />
-          <AddressBarChoice value="sidebar" title="In the sidebar" selected={addressBar === "sidebar"} onPress={() => choose("sidebar")} />
+          <AddressBarChoice value="toolbar" title={t("In the toolbar")} selected={addressBar !== "sidebar"} onPress={() => choose("toolbar")} />
+          <AddressBarChoice value="sidebar" title={t("In the sidebar")} selected={addressBar === "sidebar"} onPress={() => choose("sidebar")} />
         </Box>
         <Group>
         <Row anchor="appearance.commandBarPlacement">
           <PopUp
             value={placement}
             options={[
-              { value: "field", title: "At the address" },
-              { value: "centred", title: "In the centre" },
+              { value: "field", title: t("At the address") },
+              { value: "centred", title: t("In the centre") },
             ]}
             onChange={(v) => updateSettings({ commandBarPlacement: v })}
             minWidth={160}
@@ -159,6 +163,7 @@ const FRAME_VALUE_WIDTH = 36;
 const FRAME_CONTROL = { alignItems: "center" } as const;
 
 function PageFramePicker() {
+  const t = useT();
   const frame = useSettings((s) => s.pageFrame);
   return (
     <>
@@ -170,7 +175,7 @@ function PageFramePicker() {
               <AmountSlider value={frame / PAGE_FRAME.max} tooltip={`${frame} pt`} onChange={(v) => updateSettings({ pageFrame: Math.round(v * PAGE_FRAME.max) })} />
             </View>
             <Text size="small" tone="textSecondary" style={{ width: FRAME_VALUE_WIDTH, textAlign: "right" }}>
-              {frame === 0 ? "None" : `${frame} pt`}
+              {frame === 0 ? t("None") : `${frame} pt`}
             </Text>
           </Box>
         </Row>
@@ -180,6 +185,7 @@ function PageFramePicker() {
 }
 
 function SelectedTabGlowPicker() {
+  const t = useT();
   const glow = useSettings((s) => s.selectedTabGlow);
   return (
     <>
@@ -189,9 +195,9 @@ function SelectedTabGlowPicker() {
           <PopUp
             value={glow}
             options={[
-              { value: "full", title: "Full" },
-              { value: "soft", title: "Soft" },
-              { value: "off", title: "Off" },
+              { value: "full", title: t("Full") },
+              { value: "soft", title: t("Soft") },
+              { value: "off", title: t("Off") },
             ]}
             onChange={(v) => updateSettings({ selectedTabGlow: v })}
             minWidth={120}
@@ -203,6 +209,7 @@ function SelectedTabGlowPicker() {
 }
 
 function ScrollBarsPicker() {
+  const t = useT();
   const scrollBars = useSettings((s) => s.pageScrollBars);
   return (
     <>
@@ -212,8 +219,8 @@ function ScrollBarsPicker() {
           <PopUp
             value={scrollBars}
             options={[
-              { value: "system", title: "Follow macOS" },
-              { value: "thin", title: "Thin" },
+              { value: "system", title: t("Follow macOS") },
+              { value: "thin", title: t("Thin") },
             ]}
             onChange={(v) => updateSettings({ pageScrollBars: v })}
             minWidth={140}

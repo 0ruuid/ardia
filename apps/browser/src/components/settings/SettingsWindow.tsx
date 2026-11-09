@@ -1,4 +1,4 @@
-import { Box, Button, ListRow, space, Symbol, Text, Toggle, VisualEffect, WindowDragRegion } from "../ui";
+import { Box, Button, ListRow, space, Symbol, Text, Toggle, VisualEffect, WindowDragRegion, TranslateProvider } from "../ui";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme } from "../ui/theme";
@@ -10,6 +10,7 @@ import { clearSettingsReveal, flashSetting, settingsSectionKey, useSettingsSearc
 import { anchorView } from "./anchors";
 import { ADVANCED_PANES, findSetting, PANES } from "./settingsIndex";
 import { SettingsPaneContext } from "./Form";
+import { useT } from "../../state/i18n";
 import { PageToolbar } from "../pages/PageLayout";
 import { SettingsSearchField, SettingsSearchResults } from "./SettingsSearch";
 import { AdvancedPane } from "./panes/Advanced";
@@ -72,11 +73,12 @@ function usePrefetchAllPanes(enabled: boolean) {
 
 export function SettingsWindow() {
   const look = useSettingsColors();
+  const t = useT();
   const nav = useSettingsNav();
   const shown = useShownPane();
   usePrefetchAllPanes(!!shown);
   const profileName = useProfile(shown?.profileId, (p) => p?.name);
-  const title = shown ? (shown.pane === "profiles" && profileName ? profileName : PANES.find((p) => p.id === shown.pane)!.title) : "";
+  const title = shown ? (shown.pane === "profiles" && profileName ? profileName : t(PANES.find((p) => p.id === shown.pane)!.title)) : "";
   const sheet = useSettingsSheet((s) => s.sheet);
   useEffect(() => trackSettingsSection(nav.pane), [nav.pane]);
   const scroller = useRef<ScrollView>(null);
@@ -122,6 +124,7 @@ export function SettingsWindow() {
   }, [key]);
 
   return (
+    <TranslateProvider value={t}>
     <View style={{ flex: 1, flexDirection: "row", backgroundColor: look.windowFill }}>
       <View style={{ width: SIDEBAR }}>
         <VisualEffect material="sidebar" blendingMode="behindWindow" style={StyleSheet.absoluteFill} />
@@ -132,7 +135,7 @@ export function SettingsWindow() {
         ) : (
           <ScrollView style={{ flex: 1 }} contentContainerStyle={SIDEBAR_LIST}>
             {panes.map((p) => (
-              <SidebarItem key={p.id} title={p.title} icon={p.icon} selected={nav.pane === p.id} onPress={() => goToSettingsPane(p.id, settingsProfileFor(p.id, nav))} />
+              <SidebarItem key={p.id} title={t(p.title)} icon={p.icon} selected={nav.pane === p.id} onPress={() => goToSettingsPane(p.id, settingsProfileFor(p.id, nav))} />
             ))}
           </ScrollView>
         )}
@@ -141,8 +144,8 @@ export function SettingsWindow() {
       <View style={{ width: StyleSheet.hairlineWidth * 2, backgroundColor: look.sidebarDivider }} />
       <View style={{ flex: 1 }}>
         <PageToolbar size="window" drag>
-          <Button variant="icon" toolbar icon="chevron.left" size="l" disabled={!nav.back.length} onPress={() => settingsBack()} tooltip="Back" />
-          <Button variant="icon" toolbar icon="chevron.right" size="l" disabled={!nav.forward.length} onPress={() => settingsForward()} tooltip="Forward" />
+          <Button variant="icon" toolbar icon="chevron.left" size="l" disabled={!nav.back.length} onPress={() => settingsBack()} tooltip={t("Back")} />
+          <Button variant="icon" toolbar icon="chevron.right" size="l" disabled={!nav.forward.length} onPress={() => settingsForward()} tooltip={t("Forward")} />
           <Text size="title" weight="semibold" style={WINDOW_TITLE}>
             {title}
           </Text>
@@ -165,6 +168,7 @@ export function SettingsWindow() {
       <ProfileIconPicker windowId={SETTINGS_WINDOW_ID} />
       {sheet}
     </View>
+    </TranslateProvider>
   );
 }
 
@@ -211,12 +215,13 @@ const SIDEBAR_ITEM_HEIGHT = 30;
 const SIDEBAR_ICON = { width: 20, height: 20 } as const;
 
 function AdvancedToggle() {
+  const t = useT();
   const theme = useTheme();
   const shown = useSettings((s) => s.showAdvancedSettings);
   return (
     <Box row gap="m" padX="xl" padY="l" style={[ADVANCED, { borderTopColor: theme.divider }]}>
       <Text size="small" tone="textSecondary" style={FILL}>
-        Show advanced settings
+        {t("Show advanced settings")}
       </Text>
       <Toggle value={shown} onChange={(v) => updateSettings({ showAdvancedSettings: v })} />
     </Box>

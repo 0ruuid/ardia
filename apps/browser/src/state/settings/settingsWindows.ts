@@ -1,5 +1,6 @@
 import { focusWindow, openWindow } from "../../platform/windows";
 import { create } from "zustand";
+import { currentT } from "../i18n";
 import { useBrowser } from "../browser/store";
 
 export const SETTINGS_WINDOW_ID = "settings";
@@ -63,7 +64,7 @@ export function settingsForward() {
 
 export function openSettings(pane?: SettingsPane, profileId?: string | null) {
   if (pane) goToSettingsPane(pane, profileId ?? null);
-  void openWindow(SETTINGS_WINDOW_ID, { kind: "settings", title: "Settings" });
+  void openWindow(SETTINGS_WINDOW_ID, { kind: "settings", title: currentT()("Settings") });
 }
 
 export const useImportRequest = create<{ source: string | null }>()(() => ({ source: null }));

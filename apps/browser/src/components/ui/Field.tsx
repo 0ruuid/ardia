@@ -5,6 +5,7 @@ import { curve, duration } from "./motion";
 import { useTheme } from "./theme";
 import { capsule, opacity, proseLineHeight, radius, space, font as typeScale } from "./tokens";
 import { useHover } from "./useHover";
+import { useTranslate } from "./Translate";
 
 const SEARCH_KEYS = [{ key: "Escape" }];
 const SEARCH_KEYS_WITH_ENTER = [{ key: "Escape" }, { key: "Enter" }, { key: "Enter", shiftKey: true }];
@@ -40,6 +41,7 @@ export function SearchField({
   inputRef?: Ref<TextInput>;
 }) {
   const theme = useTheme();
+  const t = useTranslate();
   const bare = look === "bare";
   return (
     <View
@@ -70,7 +72,7 @@ export function SearchField({
         ref={inputRef}
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
+        placeholder={t(placeholder)}
         placeholderTextColor={bare ? theme.placeholder : theme.textTertiary}
         selectionColor={theme.selection}
         autoFocus={autoFocus}
@@ -87,7 +89,7 @@ export function SearchField({
         style={{ flex: 1, ...(bare ? typeScale.title : typeScale.body), color: theme.textPrimary, paddingVertical: 0 }}
       />
       {value && !bare ? (
-        <View tooltip="Clear">
+        <View tooltip={t("Clear")}>
           <Pressable onPress={() => onChangeText("")}>
             <Symbol name="xmark.circle.fill" size={12} color={theme.textTertiary} style={{ width: 16, height: 16 }} />
           </Pressable>
@@ -187,12 +189,13 @@ export function PopUp<T extends string>({
   disabled?: boolean;
 }) {
   const theme = useTheme();
+  const t = useTranslate();
   const { hovered, hoverProps } = useHover();
   const current = options.find((o) => o.value === value);
   const open = async () => {
     const items: MenuItem[] = options.flatMap((o) => [
       ...(o.separatorBefore ? [{ separator: true as const }] : []),
-      { id: o.value, title: o.title, checked: o.value === value },
+      { id: o.value, title: t(o.title), checked: o.value === value },
     ]);
     const choice = await showMenu(items);
     if (choice !== null && choice !== value) onChange(choice as T);
@@ -217,7 +220,7 @@ export function PopUp<T extends string>({
             }}
           >
             <Text numberOfLines={1} style={{ flex: 1, ...typeScale.body, color: theme.textPrimary }}>
-              {current?.title ?? ""}
+              {current ? t(current.title) : ""}
             </Text>
             <View style={{ width: 16, height: 16, borderRadius: radius.control, backgroundColor: theme.formAccent, alignItems: "center", justifyContent: "center" }}>
               <Symbol name="chevron.up.chevron.down" size={8} weight="bold" color={theme.onAccent} style={{ width: 16, height: 16 }} />
@@ -250,6 +253,7 @@ export function Checkbox({
   size?: keyof typeof CHECK_RING;
 }) {
   const theme = useTheme();
+  const t = useTranslate();
   const on = value || mixed;
   if (look === "ring" && !onChange) return <RingCheck on={!!on} size={size} />;
   if (look === "ring")
@@ -274,7 +278,7 @@ export function Checkbox({
       >
         {on && <Symbol name={mixed && !value ? "minus" : "checkmark"} size={9} weight="bold" color={theme.onAccent} style={{ width: 14, height: 14 }} />}
       </View>
-      {label ? <Text style={{ ...typeScale.body, color: theme.textPrimary }}>{label}</Text> : null}
+      {label ? <Text style={{ ...typeScale.body, color: theme.textPrimary }}>{t(label)}</Text> : null}
     </Pressable>
   );
 }

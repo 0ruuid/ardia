@@ -64,3 +64,10 @@ test("a setup code can carry every value its settings can take", () => {
     if (values) assert.deepEqual(values.filter((v) => !SETTING_FIELDS[key].values.includes(v)), [], key);
   }
 });
+
+test("language defaults to system and only accepts known values", () => {
+  assert.equal(DEFAULT_SETTINGS.language, "system");
+  assert.deepEqual(SETTING_SPECS.language.values, ["system", "en", "zh-Hans"]);
+  assert.equal(parseSettings({ language: "zh-Hans" }).language, "zh-Hans");
+  assert.equal(parseSettings({ language: "klingon" }).language, "system");
+});

@@ -6,6 +6,7 @@ import { useToolbarRowContext } from "./toolbarRowContext";
 import { useHover } from "./useHover";
 import { CloseButtonView, PillButtonView, PushButtonView, StepperButtonView } from "./ButtonKinds";
 import { useTheme } from "./theme";
+import { useTranslate } from "./Translate";
 import { capsule, iconButton, opacity, radius as radii, space, font as typeScale, weight as weights, type ColorRole, type IconButtonSize, type Space, type TypeSize, type Weight } from "./tokens";
 
 export type ButtonHit = { width: number; height: number; plateX: number; plateY: number; box?: number; radius?: number };
@@ -81,19 +82,23 @@ export type PushProps = {
 export type ButtonProps = IconProps | TextProps | PillProps | StepperProps | CloseProps | PushProps;
 
 export const Button = memo(function Button(props: ButtonProps) {
-  switch (props.variant) {
+  const t = useTranslate();
+  const title = "title" in props && typeof props.title === "string" ? t(props.title) : undefined;
+  const tooltip = "tooltip" in props && typeof props.tooltip === "string" ? t(props.tooltip) : undefined;
+  const localized = (title === undefined && tooltip === undefined ? props : { ...props, ...(title === undefined ? {} : { title }), ...(tooltip === undefined ? {} : { tooltip }) }) as ButtonProps;
+  switch (localized.variant) {
     case "icon":
-      return <IconButtonView {...props} />;
+      return <IconButtonView {...localized} />;
     case "text":
-      return <TextButtonView {...props} />;
+      return <TextButtonView {...localized} />;
     case "pill":
-      return <PillButtonView {...props} />;
+      return <PillButtonView {...localized} />;
     case "stepper":
-      return <StepperButtonView {...props} />;
+      return <StepperButtonView {...localized} />;
     case "close":
-      return <CloseButtonView {...props} />;
+      return <CloseButtonView {...localized} />;
     default:
-      return <PushButtonView {...props} />;
+      return <PushButtonView {...localized} />;
   }
 });
 

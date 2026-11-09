@@ -3,6 +3,7 @@ import { Symbol } from "./native";
 import { Text } from "./Text";
 import { useTheme } from "./theme";
 import { concentric, radius, space } from "./tokens";
+import { useTranslate } from "./Translate";
 
 export type SegmentOption<T extends string> = { value: T; title: string; image?: string };
 
@@ -11,13 +12,14 @@ const SEGMENT = { height: 20, imageWidth: 30, glyph: 11, glyphBox: 14 } as const
 
 export function Segmented<T extends string>({ options, value, onChange }: { options: SegmentOption<T>[]; value: T; onChange: (value: T) => void }) {
   const theme = useTheme();
+  const t = useTranslate();
   return (
     <View style={{ flexDirection: "row", borderRadius: radius.control, backgroundColor: theme.control, borderWidth: INSET, borderColor: theme.controlBorder, padding: INSET }}>
       {options.map((o) => {
         const on = o.value === value;
         const ink = on ? theme.onAccent : theme.icon;
         return (
-          <Pressable key={o.value} tooltip={o.image ? o.title : undefined} accessibilityRole="button" accessibilityLabel={o.title} accessibilityState={{ selected: on }} onPress={() => onChange(o.value)}>
+          <Pressable key={o.value} tooltip={o.image ? t(o.title) : undefined} accessibilityRole="button" accessibilityLabel={t(o.title)} accessibilityState={{ selected: on }} onPress={() => onChange(o.value)}>
             <View
               style={{
                 width: o.image ? SEGMENT.imageWidth : undefined,
@@ -33,7 +35,7 @@ export function Segmented<T extends string>({ options, value, onChange }: { opti
                 <Symbol name={o.image} size={SEGMENT.glyph} color={ink} style={{ width: SEGMENT.glyphBox, height: SEGMENT.glyphBox }} />
               ) : (
                 <Text size="small" color={on ? theme.onAccent : theme.textPrimary}>
-                  {o.title}
+                  {t(o.title)}
                 </Text>
               )}
             </View>

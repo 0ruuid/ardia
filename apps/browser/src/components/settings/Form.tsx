@@ -16,6 +16,7 @@ import { PopUp } from "../ui/Field";
 import { Text } from "../ui/Text";
 import { updateSettings } from "../../state/settings/actions";
 import type { Settings } from "../../state/settings/settings";
+import { useT } from "../../state/i18n";
 import { settingsMotion } from "./tokens";
 
 export const SettingsPaneContext = createContext<SettingsPane | null>(null);
@@ -93,8 +94,9 @@ function ShownAnchor({ id, children, radius, style }: { id?: SettingId; children
 
 export function SectionHeader({ title, description, action, anchor }: { title?: string; description?: string | null; action?: ReactNode; anchor?: SettingId }) {
   const pane = useContext(SettingsPaneContext);
+  const t = useT();
   const entry = anchor ? setting(anchor) : undefined;
-  const text = title ?? entry?.section ?? "";
+  const text = t(title ?? entry?.section ?? "");
   const detail = description === undefined ? entry?.description : description;
   if (useHiddenSection(entry?.pane ?? pane, entry?.section ?? title)) return null;
   return (
@@ -103,7 +105,7 @@ export function SectionHeader({ title, description, action, anchor }: { title?: 
         <Text weight="semibold">{text}</Text>
         {detail ? (
           <Text size="small" tone="textSecondary" style={SECTION_DETAIL}>
-            {detail}
+            {typeof detail === "string" ? t(detail) : detail}
           </Text>
         ) : null}
       </View>
@@ -127,9 +129,10 @@ export function Row({
   onPress?: () => void;
   anchor?: SettingId;
 }) {
+  const t = useT();
   const entry = anchor ? setting(anchor) : undefined;
   const row = (
-    <PlainRow title={title ?? entry?.title} description={description === undefined ? entry?.description : description} icon={icon} onPress={onPress}>
+    <PlainRow title={title === undefined ? (entry ? t(entry.title) : undefined) : typeof title === "string" ? t(title) : title} description={description === undefined ? (entry?.description ? t(entry.description) : undefined) : typeof description === "string" ? t(description) : description} icon={icon} onPress={onPress}>
       {children}
     </PlainRow>
   );
@@ -139,11 +142,12 @@ export function Row({
 type BooleanSettingKey = { [K in keyof Settings]: Settings[K] extends boolean ? K : never }[keyof Settings];
 
 export function SettingToggle({ anchor, description }: { anchor: SettingId & `${string}.${BooleanSettingKey}`; description?: ReactNode }) {
+  const t = useT();
   const key = anchor.slice(anchor.indexOf(".") + 1) as BooleanSettingKey;
   const value = useSettings((s) => s[key]);
   return (
     <Row anchor={anchor} description={description}>
-      <Toggle value={value} accessibilityLabel={setting(anchor).title} onChange={(on) => updateSettings({ [key]: on })} />
+      <Toggle value={value} accessibilityLabel={t(setting(anchor).title)} onChange={(on) => updateSettings({ [key]: on })} />
     </Row>
   );
 }
@@ -170,10 +174,11 @@ export function PaneIntro({ children }: { children: ReactNode }) {
 const PANE_INTRO = { marginTop: space.xxl, lineHeight: proseLineHeight.small } as const;
 
 export function FormField({ label, inline, children }: { label: string; inline?: boolean; children: ReactNode }) {
+  const t = useT();
   return (
     <View style={inline ? FIELD_INLINE : FIELD}>
       <Text size="caption" tone="textSecondary" style={inline ? undefined : FIELD_LABEL}>
-        {label}
+        {t(label)}
       </Text>
       {children}
     </View>

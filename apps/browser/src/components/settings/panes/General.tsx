@@ -16,24 +16,43 @@ import { openImport } from "../../../state/settings/settingsWindows";
 import { ExportBookmarksRow } from "./ExportBookmarksRow";
 import { SetupCodeRow } from "./SetupCodeRow";
 import { UI_LOCALE } from "../../../lib/uiLocale";
+import { useT } from "../../../state/i18n";
 
 const APP = "Ardia";
 
 export function GeneralPane() {
+  const t = useT();
   const openLinksInLittleArdia = useSettings((s) => s.openLinksInLittleArdia);
   const restoreSession = useSettings((s) => s.restoreSession);
   const commandBarPreference = useSettings((s) => s.commandBarPreference);
+  const language = useSettings((s) => s.language);
   const [loginStatus = "notRegistered", refreshLogin] = useResource(loginItem);
 
   return (
     <View>
       <DefaultBrowserBanner />
 
-      <SectionHeader title="General" />
+      <SectionHeader anchor="general.language" />
+      <Group>
+        <Row anchor="general.language">
+          <PopUp
+            value={language}
+            options={[
+              { value: "system", title: t("System default") },
+              { value: "en", title: "English" },
+              { value: "zh-Hans", title: "简体中文" },
+            ]}
+            onChange={(v) => updateSettings({ language: v })}
+            minWidth={190}
+          />
+        </Row>
+      </Group>
+
+      <SectionHeader title={t("General")} />
       <Group>
         <Row
           anchor="general.openAtLogin"
-          description={loginStatus === "requiresApproval" ? "Allow it in System Settings › General › Login Items." : undefined}
+          description={loginStatus === "requiresApproval" ? t("Allow it in System Settings › General › Login Items.") : undefined}
         >
           <Toggle
             value={loginStatus === "enabled" || loginStatus === "requiresApproval"}
@@ -46,15 +65,15 @@ export function GeneralPane() {
           anchor="general.openLinksFrom"
           description={
             openLinksInLittleArdia
-              ? `A link from Discord, Slack or Mail opens in Little Ardia, a small window of its own. ⌘O moves it into ${APP}; closing it throws it away.`
-              : `A link from Discord, Slack or Mail opens as a new tab in the ${APP} window you used last.`
+              ? t("A link from Discord, Slack or Mail opens in Little Ardia, a small window of its own. ⌘O moves it into Ardia; closing it throws it away.")
+              : t("A link from Discord, Slack or Mail opens as a new tab in the Ardia window you used last.")
           }
         >
           <PopUp
             value={openLinksInLittleArdia ? "small" : "tab"}
             options={[
-              { value: "small", title: "Little Ardia" },
-              { value: "tab", title: "A new tab" },
+              { value: "small", title: t("Little Ardia") },
+              { value: "tab", title: t("A new tab") },
             ]}
             onChange={(v) => updateSettings({ openLinksInLittleArdia: v === "small" })}
             minWidth={190}
@@ -63,14 +82,14 @@ export function GeneralPane() {
         <SettingToggle anchor="general.littleArdiaOpensNewTabLinks" />
       </Group>
 
-      <SectionHeader title={`When quitting ${APP}:`} />
+      <SectionHeader title={t(`When quitting ${APP}:`)} />
       <Group>
         <Row anchor="general.windowsAndTabs">
           <PopUp
             value={restoreSession ? "keep" : "close"}
             options={[
-              { value: "keep", title: "Preserve tabs and windows" },
-              { value: "close", title: "Start fresh" },
+              { value: "keep", title: t("Preserve tabs and windows") },
+              { value: "close", title: t("Start fresh") },
             ]}
             onChange={(v) => updateSettings({ restoreSession: v === "keep" })}
             minWidth={190}
@@ -78,14 +97,14 @@ export function GeneralPane() {
         </Row>
       </Group>
 
-      <SectionHeader title="Command bar" description="What happens when what you type could be a website or a search." />
+      <SectionHeader title={t("Command bar")} description={t("What happens when what you type could be a website or a search.")} />
       <Group>
         <Row anchor="general.commandBarPreference">
           <PopUp
             value={commandBarPreference}
             options={[
-              { value: "website", title: "Use Website First" },
-              { value: "search", title: "Prefer Search Engine" },
+              { value: "website", title: t("Use Website First") },
+              { value: "search", title: t("Prefer Search Engine") },
             ]}
             onChange={(v) => updateSettings({ commandBarPreference: v })}
             minWidth={190}
@@ -97,10 +116,10 @@ export function GeneralPane() {
 
       <UpdatesSection />
 
-      <SectionHeader title="Import and Export" />
+      <SectionHeader title={t("Import and Export")} />
       <Group>
         <Row anchor="general.importBrowser">
-          <Button title="Import…" onPress={openImport} />
+          <Button title={t("Import…")} onPress={openImport} />
         </Row>
         <ExportBookmarksRow />
         <SetupCodeRow />
@@ -112,6 +131,7 @@ export function GeneralPane() {
 const homeRelative = (path: string) => path.replace(/^\/Users\/[^/]+(?=\/|$)/, "~");
 
 function DownloadsSection() {
+  const t = useT();
   const profiles = useProfiles();
   const [profileId, setProfileId] = useSettingsProfile();
   const profile = currentEngineProfile(profileId);
@@ -120,23 +140,23 @@ function DownloadsSection() {
   const apply = (patch: Partial<Pick<DownloadSettings, "folder" | "askWhereToSave">>, targets = [profile]) => void setDownloadsFor(patch, targets);
   const change = async () => {
     if (!current) return;
-    const folder = await pickFolder(current.folder, "Use Folder");
+    const folder = await pickFolder(current.folder, t("Use Folder"));
     if (folder) apply({ folder });
   };
 
   return (
     <>
       <SectionHeader
-        title="Downloads"
-        description={profiles.length > 1 ? "Each profile saves to its own folder." : undefined}
+        title={t("Downloads")}
+        description={profiles.length > 1 ? t("Each profile saves to its own folder.") : undefined}
         action={<ProfilePicker value={profileId} onChange={setProfileId} />}
       />
       <Group>
         <Row
           anchor="general.downloadsFolder"
-          description={current ? (current.managed ? `${homeRelative(current.folder)}, set by your organization.` : homeRelative(current.folder)) : undefined}
+          description={current ? (current.managed ? t("{path}, set by your organization.", { path: homeRelative(current.folder) }) : homeRelative(current.folder)) : undefined}
         >
-          <Button title="Change…" disabled={!current || current.managed} onPress={() => void change()} />
+          <Button title={t("Change…")} disabled={!current || current.managed} onPress={() => void change()} />
         </Row>
         <Row anchor="general.askWhereToSave">
           <Toggle value={current?.askWhereToSave ?? false} disabled={!current || current.managed} onChange={(v) => apply({ askWhereToSave: v })} />
@@ -144,7 +164,7 @@ function DownloadsSection() {
         {others.length > 0 && (
           <Row anchor="general.downloadsAllProfiles">
             <Button
-              title="Use for All Profiles"
+              title={t("Use for All Profiles")}
               disabled={!current || current.managed}
               onPress={() => current && apply({ folder: current.folder, askWhereToSave: current.askWhereToSave }, others)}
             />
@@ -156,6 +176,7 @@ function DownloadsSection() {
 }
 
 function UpdatesSection() {
+  const t = useT();
   const [state, reload] = useResource(updater);
   const refresh = () => void reload();
   useEffect(() => {
@@ -165,13 +186,13 @@ function UpdatesSection() {
   if (!state?.available) return null;
   const ready = state.configured;
   const lastCheck = state.lastCheck
-    ? `Last checked ${new Date(state.lastCheck).toLocaleString(UI_LOCALE, { dateStyle: "medium", timeStyle: "short" })}.`
-    : "Not checked yet.";
+    ? t("Last checked {date}.", { date: new Date(state.lastCheck).toLocaleString(UI_LOCALE, { dateStyle: "medium", timeStyle: "short" }) })
+    : t("Not checked yet.");
   return (
     <>
-      <SectionHeader title="Updates" description={ready ? undefined : "Updates aren't set up for this build."} />
+      <SectionHeader title={t("Updates")} description={ready ? undefined : t("Updates aren't set up for this build.")} />
       <Group>
-        <Row anchor="general.updateChecks" description={`${SHARING_COPY.updateChecks} ${SHARING_COPY.switchFile}`}>
+        <Row anchor="general.updateChecks" description={`${t(SHARING_COPY.updateChecks)} ${t(SHARING_COPY.switchFile)}`}>
           <Toggle value={ready && state.automaticChecks} disabled={!ready} onChange={(v) => setUpdaterPrefs({ automaticChecks: v })} />
         </Row>
         <Row anchor="general.autoUpdate">
@@ -186,8 +207,8 @@ function UpdatesSection() {
             <PopUp
               value={state.channel}
               options={[
-                { value: "stable", title: "Stable" },
-                { value: "nightly", title: "Nightly" },
+                { value: "stable", title: t("Stable") },
+                { value: "nightly", title: t("Nightly") },
               ]}
               disabled={!ready}
               onChange={(channel) => setUpdaterPrefs({ channel })}
@@ -196,7 +217,7 @@ function UpdatesSection() {
           </Row>
         )}
         <Row anchor="general.checkNow" title={`${APP} ${state.displayVersion ?? state.version}`} description={ready ? lastCheck : undefined}>
-          <Button title="Check Now" disabled={ready && (!state.canCheck || state.sessionInProgress)} onPress={() => void checkForUpdates().finally(refresh)} />
+          <Button title={t("Check Now")} disabled={ready && (!state.canCheck || state.sessionInProgress)} onPress={() => void checkForUpdates().finally(refresh)} />
         </Row>
       </Group>
     </>
@@ -204,6 +225,7 @@ function UpdatesSection() {
 }
 
 function DefaultBrowserBanner() {
+  const t = useT();
   const theme = useTheme();
   const [isDefault, reload] = useResource(defaultBrowser);
   useEffect(() => {
@@ -215,9 +237,9 @@ function DefaultBrowserBanner() {
       <Group>
         <Row
           icon={<Symbol name={isDefault ? "checkmark.seal.fill" : "safari"} size={20} color={isDefault ? theme.success : theme.icon} style={BANNER_ICON} />}
-          title={isDefault ? `${APP} is your default browser` : `${APP} works best as your default browser`}
+          title={isDefault ? t(`${APP} is your default browser`) : t(`${APP} works best as your default browser`)}
         >
-          {!isDefault && <Button title={`Set ${APP} as Default`} kind="primary" onPress={() => void makeDefaultBrowser()} />}
+          {!isDefault && <Button title={t(`Set ${APP} as Default`)} kind="primary" onPress={() => void makeDefaultBrowser()} />}
         </Row>
       </Group>
     </Anchor>

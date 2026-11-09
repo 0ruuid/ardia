@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { editDistance, groupByPane, search } from "./searchMatch.ts";
-import { ADVANCED_PANES, SETTINGS, SETTINGS_INDEX } from "./settingsIndex.ts";
+import { ADVANCED_PANES, SETTINGS, SETTINGS_INDEX, localizedIndex } from "./settingsIndex.ts";
 
 const ids = (query) => search(SETTINGS_INDEX, query).map((h) => h.entry.id);
 const first = (query) => ids(query)[0];
@@ -132,4 +132,19 @@ test("panes leave showing and hiding an anchored row to the row's own rule", () 
     [...readFileSync(new URL(file, dir), "utf8").matchAll(/\{[^{}\n]*&&\s*(?:\(\s*)?(?:<Row anchor="([\w.]+)"|toggle\("\w+", "([\w.]+)"\))/g)].map((m) => `${file}: ${m[1] ?? m[2]}`),
   );
   assert.deepEqual(wrapped, SHOWN_BY_LOADED_DATA);
+});
+
+const zhIndex = localizedIndex("zh-Hans");
+const zhIds = (query) => search(zhIndex, query).map((h) => h.entry.id);
+
+test("Chinese queries find their settings", () => {
+  assert.ok(zhIds("默认浏览器").includes("general.defaultBrowser"));
+  assert.ok(zhIds("语言").includes("general.language"));
+  assert.ok(zhIds("下载").includes("general.downloadsFolder"));
+  assert.ok(zhIds("外观").some((id) => id.startsWith("appearance.")));
+});
+
+test("Latin queries still go through the word path", () => {
+  assert.equal(first("cookies"), "privacy.blockCookieBanners");
+  assert.equal(first("dark"), "appearance.theme");
 });

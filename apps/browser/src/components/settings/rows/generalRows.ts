@@ -6,6 +6,16 @@ const inSidebar = (_: unknown, env: SettingsEnv) => !env.top;
 export const generalRows = {
   general: [
     {
+      section: "Language",
+      rows: {
+        language: {
+          title: "Language",
+          description: "Choose the language for Ardia's interface.",
+          keywords: ["interface language", "ui language", "中文", "简体中文", "语言", "界面语言", "language"],
+        },
+      },
+    },
+    {
       section: "General",
       rows: {
         defaultBrowser: { title: "Default browser", description: `Make ${APP} your default browser.`, keywords: ["default", "set as default", "links"] },

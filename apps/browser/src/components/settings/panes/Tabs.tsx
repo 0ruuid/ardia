@@ -13,6 +13,7 @@ import { MiniWindow } from "../MiniWindow";
 import { PictureChoice } from "../PictureChoice";
 import { setting, type SettingId } from "../settingsIndex";
 import { useSettingsColors } from "../useSettingsColors";
+import { useT } from "../../../state/i18n";
 
 const PEEK_WITH: { value: PeekModifier; title: string }[] = [
   { value: "shift", title: "⇧-click" },
@@ -31,24 +32,24 @@ const NEW_TAB_LINKS: { value: Settings["newTabLinksOpenIn"]; title: string }[] =
   { value: "littleArdia", title: "Little Ardia" },
 ];
 
-const withNote = (anchor: SettingId, note: string | null) => (note ? `${setting(anchor).description ?? ""} ${note}`.trim() : undefined);
-
 function LinkKeys() {
+  const t = useT();
+  const withNote = (anchor: SettingId, note: string | null) => (note ? `${t(setting(anchor).description ?? "")} ${note}`.trim() : undefined);
   const peekWith = useSettings((s) => s.peekModifier);
   const splitWith = useSettings(splitLinkModifierOf);
   const newTabLinks = useSettings((s) => s.newTabLinksOpenIn);
-  const peekOptions = PEEK_WITH.map((o) => (o.value === "alt" && splitWith === "alt" ? { ...o, title: "⌥-click (split view moves to ⌥⇧-click)" } : o));
-  const splitOptions = SPLIT_WITH.map((o) => (o.value === "alt" && peekWith === "alt" ? { ...o, title: "⌥-click (Peek moves to ⇧-click)" } : o));
+  const peekOptions = PEEK_WITH.map((o) => (o.value === "alt" && splitWith === "alt" ? { ...o, title: t("⌥-click (split view moves to ⌥⇧-click)") } : { ...o, title: t(o.title) }));
+  const splitOptions = SPLIT_WITH.map((o) => (o.value === "alt" && peekWith === "alt" ? { ...o, title: t("⌥-click (Peek moves to ⇧-click)") } : { ...o, title: t(o.title) }));
   return (
     <Group>
       <SettingToggle anchor="tabs.peekLinksToOtherSites" />
       <Row anchor="tabs.newTabLinksOpenIn">
-        <PopUp value={newTabLinks} options={NEW_TAB_LINKS} onChange={(newTabLinksOpenIn) => updateSettings({ newTabLinksOpenIn })} />
+        <PopUp value={newTabLinks} options={NEW_TAB_LINKS.map((o) => ({ ...o, title: t(o.title) }))} onChange={(newTabLinksOpenIn) => updateSettings({ newTabLinksOpenIn })} />
       </Row>
-      <Row anchor="tabs.peekModifier" description={withNote("tabs.peekModifier", splitWith === "alt" ? "⌥-click opens a split now: choosing it here moves split view back to ⌥⇧-click." : null)}>
+      <Row anchor="tabs.peekModifier" description={withNote("tabs.peekModifier", splitWith === "alt" ? t("⌥-click opens a split now: choosing it here moves split view back to ⌥⇧-click.") : null)}>
         <PopUp value={peekWith} options={peekOptions} onChange={(peekModifier) => updateSettings({ peekModifier })} />
       </Row>
-      <Row anchor="tabs.splitLinkModifier" description={withNote("tabs.splitLinkModifier", peekWith === "alt" ? "⌥-click peeks now: choosing it here moves Peek back to ⇧-click." : null)}>
+      <Row anchor="tabs.splitLinkModifier" description={withNote("tabs.splitLinkModifier", peekWith === "alt" ? t("⌥-click peeks now: choosing it here moves Peek back to ⇧-click.") : null)}>
         <PopUp value={splitWith} options={splitOptions} onChange={(splitLinkModifier) => updateSettings({ splitLinkModifier })} />
       </Row>
     </Group>
@@ -84,16 +85,18 @@ const DURATION_UNITS: Option<DurationUnit>[] = [
 ];
 
 function AutoHideTabsRow({ top }: { top: boolean }) {
+  const t = useT();
   const on = useSettings((s) => s.autoHideTabs);
   const edge = top ? "top edge" : "edge";
   return (
-    <Row anchor="tabs.autoHideTabs" description={`The tabs slide out of view and come back when you move the pointer to the window's ${edge}. ⌘S turns it on or off from any window.`}>
-      <Toggle value={on} accessibilityLabel={setting("tabs.autoHideTabs").title} onChange={chooseAutoHideTabs} />
+    <Row anchor="tabs.autoHideTabs" description={t("The tabs slide out of view and come back when you move the pointer to the window's {edge}. ⌘S turns it on or off from any window.", { edge: t(edge) })}>
+      <Toggle value={on} accessibilityLabel={t(setting("tabs.autoHideTabs").title)} onChange={chooseAutoHideTabs} />
     </Row>
   );
 }
 
 export function TabsPane() {
+  const t = useT();
   const newTabOpens = useSettings((s) => s.newTabOpens);
   const newTabPosition = useSettings((s) => s.newTabPosition);
   const newTabButtonPosition = useSettings((s) => s.newTabButtonPosition);
@@ -106,13 +109,13 @@ export function TabsPane() {
       <SectionHeader anchor="tabs.layout" description={null} />
       <Box gap="xl">
         <Box row gap="xl">
-          <LayoutChoice layout="sidebar" title="Tab layout in the sidebar" selected={!top} side={sidebarSide} />
-          <LayoutChoice layout="top" title="Tab layout across the top of the window" selected={top} />
+          <LayoutChoice layout="sidebar" title={t("Tab layout in the sidebar")} selected={!top} side={sidebarSide} />
+          <LayoutChoice layout="top" title={t("Tab layout across the top of the window")} selected={top} />
         </Box>
         <Group>
         <AutoHideTabsRow top={top} />
         <Row anchor="tabs.sidebarSide">
-          <Segmented options={SIDEBAR_SIDES} value={sidebarSide} onChange={chooseSidebarSide} />
+          <Segmented options={SIDEBAR_SIDES.map((o) => ({ ...o, title: t(o.title) }))} value={sidebarSide} onChange={chooseSidebarSide} />
         </Row>
         <SettingToggle anchor="tabs.hideToolbarWhileScrolling" />
         <SettingToggle anchor="tabs.showSidebarButton" />
@@ -128,18 +131,18 @@ export function TabsPane() {
           <PopUp
             value={newTabOpens}
             options={[
-              { value: "page", title: "New Tab Page" },
-              { value: "commandBar", title: "Command Bar" },
+              { value: "page", title: t("New Tab Page") },
+              { value: "commandBar", title: t("Command Bar") },
             ]}
             onChange={(v) => updateSettings({ newTabOpens: v })}
             minWidth={160}
           />
         </Row>
         <Row anchor="tabs.newTabPosition">
-          <PopUp value={newTabPosition} options={top ? NEW_TABS_ACROSS : NEW_TABS_DOWN} onChange={(v) => updateSettings({ newTabPosition: v })} minWidth={190} />
+          <PopUp value={newTabPosition} options={(top ? NEW_TABS_ACROSS : NEW_TABS_DOWN).map((o) => ({ ...o, title: t(o.title) }))} onChange={(v) => updateSettings({ newTabPosition: v })} minWidth={190} />
         </Row>
         <Row anchor="tabs.newTabButtonPosition">
-          <PopUp value={newTabButtonPosition} options={NEW_TAB_BUTTON} onChange={(v) => updateSettings({ newTabButtonPosition: v })} minWidth={190} />
+          <PopUp value={newTabButtonPosition} options={NEW_TAB_BUTTON.map((o) => ({ ...o, title: t(o.title) }))} onChange={(v) => updateSettings({ newTabButtonPosition: v })} minWidth={190} />
         </Row>
         <SettingToggle anchor="tabs.shareTabsAcrossWindows" />
         <SettingToggle anchor="tabs.warnBeforeClosingLastTab" />
@@ -172,10 +175,11 @@ export function TabsPane() {
 }
 
 function CleanUpRow({ minutes }: { minutes: number | null }) {
+  const t = useT();
   const shown = minutes ?? DAILY_CLEAN_UP_MINUTES;
   return (
     <Group>
-      <Row anchor="tabs.cleanUp" description={null} title={<Checkbox value={minutes !== null} onChange={(v) => updateSettings({ cleanUpInactiveTabsAfterMinutes: v ? DAILY_CLEAN_UP_MINUTES : null })} label="Clean up tabs I haven't used in:" />}>
+      <Row anchor="tabs.cleanUp" description={null} title={<Checkbox value={minutes !== null} onChange={(v) => updateSettings({ cleanUpInactiveTabsAfterMinutes: v ? DAILY_CLEAN_UP_MINUTES : null })} label={t("Clean up tabs I haven't used in:")} />}>
         <PopUp
           value={String(shown)}
           options={cleanUpChoices(shown)}
@@ -188,6 +192,7 @@ function CleanUpRow({ minutes }: { minutes: number | null }) {
 }
 
 function CustomCleanUpSheet({ minutes }: { minutes: number }) {
+  const t = useT();
   const start = durationParts(minutes);
   const [amount, setAmount] = useState(String(start.amount));
   const [unit, setUnit] = useState<DurationUnit>(start.unit);
@@ -200,19 +205,19 @@ function CustomCleanUpSheet({ minutes }: { minutes: number }) {
   };
   return (
     <Sheet size="s" onClose={closeSettingsSheet}>
-      <DialogTitle subtitle="Clean up tabs I haven't used in:">Custom Clean Up Time</DialogTitle>
+      <DialogTitle subtitle={t("Clean up tabs I haven't used in:")}>{t("Custom Clean Up Time")}</DialogTitle>
       <Box row gap="m" style={FIELDS}>
         <TextField value={amount} onChangeText={(text) => { setAmount(text); setInvalid(false); }} onSubmit={save} onEscape={closeSettingsSheet} autoFocus selectOnFocus width={80} />
-        <PopUp value={unit} options={DURATION_UNITS} onChange={(next) => { setUnit(next); setInvalid(false); }} minWidth={110} />
+        <PopUp value={unit} options={DURATION_UNITS.map((o) => ({ ...o, title: t(o.title) }))} onChange={(next) => { setUnit(next); setInvalid(false); }} minWidth={110} />
       </Box>
       {invalid && (
         <Text size="caption" tone="destructive" style={ERROR}>
-          Enter a number above zero, up to 365 days.
+          {t("Enter a number above zero, up to 365 days.")}
         </Text>
       )}
       <DialogActions>
-        <Button title="Cancel" onPress={closeSettingsSheet} />
-        <Button title="Save" kind="primary" onPress={save} />
+        <Button title={t("Cancel")} onPress={closeSettingsSheet} />
+        <Button title={t("Save")} kind="primary" onPress={save} />
       </DialogActions>
     </Sheet>
   );

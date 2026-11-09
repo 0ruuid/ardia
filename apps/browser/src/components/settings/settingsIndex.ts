@@ -1,10 +1,12 @@
-import { prepare, type Searchable } from "./searchMatch";
+import { prepare, type Prepared, type Searchable } from "./searchMatch";
 import { SETTINGS_PANES, type SettingsPane } from "../../state/settings/settingsWindows";
 import type { Settings } from "../../state/settings/settings";
 import { generalRows } from "./rows/generalRows";
 import { privacyRows } from "./rows/privacyRows";
 import { toolRows } from "./rows/toolRows";
 import type { SettingSection, SettingsEnv } from "./rows/types";
+import { translate } from "../../lib/i18n/translate";
+import type { UiLanguage } from "../../lib/i18n/languages";
 
 const PANE_LOOKS: Record<SettingsPane, { title: string; icon: string }> = {
   general: { title: "General", icon: "gearshape" },
@@ -61,3 +63,23 @@ export const unshownSettings = (settings: Settings, env: SettingsEnv) =>
 export const sectionEntries = (pane: SettingsPane, section: string) => SETTINGS.filter((s) => s.pane === pane && s.section === section);
 
 export const ADVANCED_PANES = new Set(PANES.map((p) => p.id).filter((pane) => SETTINGS.some((s) => s.pane === pane) && SETTINGS.every((s) => s.pane !== pane || s.advanced)));
+
+const localizedCache = new Map<UiLanguage, Prepared<SettingEntry>[]>();
+
+export function localizedIndex(language: UiLanguage): Prepared<SettingEntry>[] {
+  let index = localizedCache.get(language);
+  if (!index) {
+    index = prepare(
+      SETTINGS.map((entry) => ({
+        ...entry,
+        title: translate(entry.title, language),
+        section: translate(entry.section, language),
+        paneTitle: translate(entry.paneTitle, language),
+        description: entry.description ? translate(entry.description, language) : undefined,
+        keywords: entry.keywords?.map((keyword) => translate(keyword, language)),
+      })),
+    );
+    localizedCache.set(language, index);
+  }
+  return index;
+}

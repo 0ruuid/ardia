@@ -15,6 +15,7 @@ import { FormField, Group, Row, SectionHeader, SettingToggle } from "../Form";
 import { engineVersion, widevine as widevineComponent } from "../../../state/settings/paneData";
 import { useResource } from "../../../state/settings/resources";
 import { AutomationRules } from "./AutomationRules";
+import { useT } from "../../../state/i18n";
 
 const REPOSITORY = "https://github.com/mantrakp04/ardia";
 const SOURCE_NOTICE = "Ardia is free software under the GNU General Public License v3, with no warranty.";
@@ -33,6 +34,7 @@ const MEMORY_SAVER_MODES: Record<MemorySaverMode, { title: string; description: 
 const MEMORY_SAVER_OPTIONS = Object.entries(MEMORY_SAVER_MODES).map(([value, { title }]) => ({ value: value as MemorySaverMode, title }));
 
 export function AdvancedPane() {
+  const t = useT();
   const hideBookmarksBarImport = useSettings((s) => s.hideBookmarksBarImport);
   const memorySaverMode = useSettings((s) => s.memorySaverMode);
   const batterySaverWhen = useSettings((s) => s.batterySaverWhen);
@@ -61,7 +63,7 @@ export function AdvancedPane() {
         <Row anchor="advanced.memorySaverMode" description={MEMORY_SAVER_MODES[memorySaverMode].description}>
           <PopUp
             value={memorySaverMode}
-            options={MEMORY_SAVER_OPTIONS}
+            options={MEMORY_SAVER_OPTIONS.map((o) => ({ ...o, title: t(o.title) }))}
             onChange={(v) => updateSettings({ memorySaverMode: v })}
             minWidth={190}
           />
@@ -70,9 +72,9 @@ export function AdvancedPane() {
           <PopUp
             value={batterySaverWhen}
             options={[
-              { value: "lowBattery", title: "When battery is low" },
-              { value: "unplugged", title: "When unplugged" },
-              { value: "never", title: "Never" },
+              { value: "lowBattery", title: t("When battery is low") },
+              { value: "unplugged", title: t("When unplugged") },
+              { value: "never", title: t("Never") },
             ]}
             onChange={(v) => updateSettings({ batterySaverWhen: v })}
             minWidth={190}
@@ -86,10 +88,10 @@ export function AdvancedPane() {
       <SectionHeader title="Data" />
       <Group>
         <Row anchor="advanced.history">
-          <Button title="Show History" onPress={() => openInternalPage("history")} />
+          <Button title={t("Show History")} onPress={() => openInternalPage("history")} />
         </Row>
         <Row anchor="advanced.downloads">
-          <Button title="Show Downloads" onPress={() => openInternalPage("downloads")} />
+          <Button title={t("Show Downloads")} onPress={() => openInternalPage("downloads")} />
         </Row>
       </Group>
 
@@ -109,7 +111,7 @@ export function AdvancedPane() {
             widevine === undefined
               ? "Checking…"
               : widevineVersion
-                ? `Version ${widevineVersion}`
+                ? t("Version {version}", { version: widevineVersion })
                 : "Not available in this build: video that needs it, like Netflix or Disney+, won't play."
           }
         />
@@ -118,10 +120,10 @@ export function AdvancedPane() {
       <SectionHeader title="Source and licenses" />
       <Group>
         <Row anchor="advanced.source" description={SOURCE_NOTICE}>
-          <Button title="Show on GitHub" onPress={() => openUrls([`${REPOSITORY}/tree/v${systemInfo().appVersion}`])} />
+          <Button title={t("Show on GitHub")} onPress={() => openUrls([`${REPOSITORY}/tree/v${systemInfo().appVersion}`])} />
         </Row>
         <Row anchor="advanced.licenses">
-          <Button title="Show Licenses" onPress={() => openUrls(["chrome://credits"])} />
+          <Button title={t("Show Licenses")} onPress={() => openUrls(["chrome://credits"])} />
         </Row>
       </Group>
     </View>
@@ -129,6 +131,7 @@ export function AdvancedPane() {
 }
 
 function CommandLineSection() {
+  const t = useT();
   const on = useSettings((s) => s.cliControl);
   const cli = useCli();
   const server = cli.server;
@@ -139,7 +142,7 @@ function CommandLineSection() {
         ? server.reason
         : on && server?.state === "on"
           ? server.connections
-            ? `Connected now: ${server.connections === 1 ? "1 session" : `${server.connections} sessions`}.`
+            ? t("Connected now: {count}.", { count: server.connections === 1 ? t("1 session") : t("{count} sessions", { count: server.connections }) })
             : "On. Nothing is connected."
           : "While it's on, the command can open, read and act in every page you're signed in to, and it stays on after you quit.";
   return (
@@ -156,7 +159,7 @@ function CommandLineSection() {
           }
         >
           <Button
-            title={cli.installing ? "Installing…" : cli.installedVersion ? "Reinstall" : "Install"}
+            title={cli.installing ? t("Installing…") : cli.installedVersion ? t("Reinstall") : t("Install")}
             disabled={!!cli.installing}
             onPress={() => void installCliInBackground("settings")}
           />
@@ -169,9 +172,10 @@ function CommandLineSection() {
 const siteUrl = (site: string) => (/^[a-z][\w+.-]*:\/\//i.test(site) ? site : `https://${site.replace(/^\[\*\.\]|^\*\.|^\./, "")}`);
 
 function KeepActiveSites({ sites }: { sites: string[] }) {
+  const t = useT();
   return (
     <>
-      <SectionHeader anchor="advanced.keepActiveSites" description={null} action={<Button title="Add Site…" icon="plus" onPress={() => showSettingsSheet(<KeepActiveSiteSheet />)} />} />
+      <SectionHeader anchor="advanced.keepActiveSites" description={null} action={<Button title={t("Add Site…")} icon="plus" onPress={() => showSettingsSheet(<KeepActiveSiteSheet />)} />} />
       <Group of="advanced.keepActiveSites">
         {sites.length === 0 ? (
           <Row title="No sites added" />
@@ -180,7 +184,7 @@ function KeepActiveSites({ sites }: { sites: string[] }) {
             .sort((a, b) => a.localeCompare(b))
             .map((site) => (
               <Row key={site} icon={<Favicon url={siteUrl(site)} />} title={site}>
-                <Button variant="icon" icon="trash" size="m" onPress={() => stopKeepingSiteActive(site)} tooltip="Remove" />
+                <Button variant="icon" icon="trash" size="m" onPress={() => stopKeepingSiteActive(site)} tooltip={t("Remove")} />
               </Row>
             ))
         )}
@@ -190,6 +194,7 @@ function KeepActiveSites({ sites }: { sites: string[] }) {
 }
 
 function KeepActiveSiteSheet() {
+  const t = useT();
   const [site, setSite] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -202,8 +207,8 @@ function KeepActiveSiteSheet() {
   };
   return (
     <Sheet onClose={closeSettingsSheet}>
-      <DialogTitle subtitle="Sites you add will always stay active and memory won't be freed up from them.">Add Site</DialogTitle>
-      <FormField label="Site">
+      <DialogTitle subtitle={t("Sites you add will always stay active and memory won't be freed up from them.")}>{t("Add Site")}</DialogTitle>
+      <FormField label={t("Site")}>
         <TextField value={site} onChangeText={setSite} placeholder="youtube.com" onSubmit={() => void add()} onEscape={closeSettingsSheet} autoFocus />
       </FormField>
       {error && (
@@ -212,8 +217,8 @@ function KeepActiveSiteSheet() {
         </Text>
       )}
       <DialogActions>
-        <Button title="Cancel" onPress={closeSettingsSheet} />
-        <Button title="Add" kind="primary" disabled={saving || !site.trim()} onPress={() => void add()} />
+        <Button title={t("Cancel")} onPress={closeSettingsSheet} />
+        <Button title={t("Add")} kind="primary" disabled={saving || !site.trim()} onPress={() => void add()} />
       </DialogActions>
     </Sheet>
   );

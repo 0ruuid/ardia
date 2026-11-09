@@ -18,12 +18,14 @@ import { matchesQuery } from "../../pages/PageLayout";
 import { shortcutItems } from "../../../state/settings/paneData";
 import { useResource } from "../../../state/settings/resources";
 import { formatShortcut, sameShortcut, type Shortcut } from "../../../state/commands/shortcuts";
+import { useT } from "../../../state/i18n";
 
 type Filter = "all" | "customized" | "conflicts";
 
 const NO_SHORTCUT: Shortcut = { key: "", modifiers: [] };
 
 export function ShortcutsPane() {
+  const t = useT();
   const overrides = useSettings((s) => s.shortcuts);
   const profileOrder = useProfileOrder();
   const menuBar = useMenuBarRevision();
@@ -63,7 +65,7 @@ export function ShortcutsPane() {
   return (
     <View>
       <Box gap="xl">
-        <PaneIntro>Perform common actions in Ardia faster and from anywhere. Select an action to customize its keyboard shortcut.</PaneIntro>
+        <PaneIntro>{t("Perform common actions in Ardia faster and from anywhere. Select an action to customize its keyboard shortcut.")}</PaneIntro>
         <Group>
           <Row anchor="shortcuts.undoReopensClosedTab">
             <Toggle value={undoReopensClosedTab} onChange={(v) => updateSettings({ undoReopensClosedTab: v })} />
@@ -71,24 +73,24 @@ export function ShortcutsPane() {
         </Group>
         <Anchor id="shortcuts.actions" shape="row" style={TOOLBAR}>
           <View style={FILL}>
-            <SearchField value={query} onChangeText={setQuery} placeholder="Search actions" />
+            <SearchField value={query} onChangeText={setQuery} placeholder={t("Search actions")} />
           </View>
           <PopUp
             value={filter}
             options={[
-              { value: "all", title: "All Shortcuts" },
-              { value: "customized", title: "Customized Shortcuts" },
-              { value: "conflicts", title: "Conflicting Shortcuts" },
+              { value: "all", title: t("All Shortcuts") },
+              { value: "customized", title: t("Customized Shortcuts") },
+              { value: "conflicts", title: t("Conflicting Shortcuts") },
             ]}
             onChange={setFilter}
             minWidth={170}
           />
-          <Button title="Reset All Shortcuts" disabled={!customizedCount} onPress={() => updateSettings({ shortcuts: {} })} />
+          <Button title={t("Reset All Shortcuts")} disabled={!customizedCount} onPress={() => updateSettings({ shortcuts: {} })} />
         </Anchor>
       </Box>
       {items !== null && shown.length === 0 && (
         <View style={NO_MATCH}>
-          <EmptyState symbol="magnifyingglass" title="No matching actions" />
+          <EmptyState symbol="magnifyingglass" title={t("No matching actions")} />
         </View>
       )}
       {menus.map((menu) => (
@@ -106,7 +108,7 @@ export function ShortcutsPane() {
                     description={
                       others.length ? (
                         <Text size="caption" tone="warning" style={CONFLICT}>
-                          {`${others.length === 1 ? "This shortcut conflicts with another shortcut:" : "This shortcut conflicts with other shortcuts:"} ${others.map((o) => o.title).join(", ")}`}
+                          {`${others.length === 1 ? t("This shortcut conflicts with another shortcut:") : t("This shortcut conflicts with other shortcuts:")} ${others.map((o) => o.title).join(", ")}`}
                         </Text>
                       ) : item.path.length > 1 ? (
                         item.path.slice(1).join(" › ")
@@ -114,7 +116,7 @@ export function ShortcutsPane() {
                     }
                   >
                     {overrides[item.id] && (
-                      <Button variant="icon" icon="arrow.uturn.backward" size="m" onPress={() => setShortcutOverride(item.id, null)} tooltip="Reset to Default" />
+                      <Button variant="icon" icon="arrow.uturn.backward" size="m" onPress={() => setShortcutOverride(item.id, null)} tooltip={t("Reset to Default")} />
                     )}
                     <ShortcutField
                       combo={effective(item)}
@@ -134,7 +136,7 @@ export function ShortcutsPane() {
           <SectionHeader title="Extensions" />
           <Group>
             <Row anchor="shortcuts.extensionShortcuts">
-              <Button title="Edit…" onPress={() => openUrls(["chrome://extensions/shortcuts"])} />
+              <Button title={t("Edit…")} onPress={() => openUrls(["chrome://extensions/shortcuts"])} />
             </Row>
           </Group>
         </>
@@ -156,12 +158,13 @@ function ShortcutField({
   onRecord: () => void;
   onClear: () => void;
 }) {
+  const t = useT();
   const theme = useTheme();
   const { hovered, hoverProps } = useHover();
-  const text = recording ? "Type Shortcut" : formatShortcut(combo);
+  const text = recording ? t("Type Shortcut") : formatShortcut(combo);
   if (!remappable) {
     return (
-      <View style={FIXED_KEYS} tooltip="(not remappable)">
+      <View style={FIXED_KEYS} tooltip={t("(not remappable)")}>
         <Text tone="textTertiary">{text || "—"}</Text>
       </View>
     );
@@ -169,10 +172,10 @@ function ShortcutField({
   return (
     <View {...hoverProps} style={KEY_FIELD}>
       <Pressable onPress={onRecord}>
-        <KeyCap keys={[text || "None"]} editing={recording} empty={!text} hovered={hovered} />
+        <KeyCap keys={[text || t("None")]} editing={recording} empty={!text} hovered={hovered} />
       </Pressable>
       {hovered && !recording && combo.key ? (
-        <Pressable onPress={onClear} tooltip="Remove Shortcut" style={CLEAR}>
+        <Pressable onPress={onClear} tooltip={t("Remove Shortcut")} style={CLEAR}>
           <Symbol name="xmark.circle.fill" size={11} color={theme.textTertiary} style={{ width: 14, height: 14 }} />
         </Pressable>
       ) : null}

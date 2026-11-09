@@ -2,8 +2,10 @@ import { useSettings } from "../../../state/browser/hooks";
 import { updateSettings } from "../../../state/settings/actions";
 import { PopUp } from "../../ui";
 import { Group, Row, SectionHeader, SettingToggle } from "../Form";
+import { useT } from "../../../state/i18n";
 
 export function BookmarksBarSection() {
+  const t = useT();
   const mode = useSettings((s) => s.bookmarksBar);
   const size = useSettings((s) => s.bookmarksBarSize);
   return (
@@ -15,9 +17,9 @@ export function BookmarksBarSection() {
           <PopUp
             value={mode}
             options={[
-              { value: "always", title: "Always" },
-              { value: "newTab", title: "On New Tab Only" },
-              { value: "never", title: "Never" },
+              { value: "always", title: t("Always") },
+              { value: "newTab", title: t("On New Tab Only") },
+              { value: "never", title: t("Never") },
             ]}
             onChange={(v) => updateSettings({ bookmarksBar: v })}
             minWidth={160}
@@ -27,8 +29,8 @@ export function BookmarksBarSection() {
           <PopUp
             value={size}
             options={[
-              { value: "default", title: "Default" },
-              { value: "large", title: "Large" },
+              { value: "default", title: t("Default") },
+              { value: "large", title: t("Large") },
             ]}
             onChange={(v) => updateSettings({ bookmarksBarSize: v })}
             minWidth={160}

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
-import { Box, Symbol, Text, useHover, useTheme } from "../ui";
+import { Box, Symbol, Text, useHover, useTheme, useTranslate } from "../ui";
 import { SelectableCard } from "./SelectableCard";
 import { pictureChoice } from "./tokens";
 
@@ -22,11 +22,12 @@ export function PictureChoice({
   children: ReactNode;
 }) {
   const theme = useTheme();
+  const t = useTranslate();
   const { hovered, hoverProps } = useHover();
   const icon = size === "icon";
   return (
     <View {...hoverProps} style={icon ? { width: pictureChoice.iconWidth } : { flex: 1 }}>
-      <Pressable onPress={onPress} tooltip={tooltip}>
+      <Pressable onPress={onPress} tooltip={tooltip ? t(tooltip) : undefined}>
         <Box gap="m" style={{ alignItems: "center" }}>
           <SelectableCard
             selected={selected}
@@ -40,7 +41,7 @@ export function PictureChoice({
           <Box row gap="xs" style={{ alignItems: "center" }}>
             {selected && <Symbol name="checkmark.circle.fill" size={12} color={theme.formAccent} style={CHECK} />}
             <Text size="small" tone={selected ? "textPrimary" : "textSecondary"} lines={1}>
-              {title}
+              {t(title)}
             </Text>
           </Box>
         </Box>

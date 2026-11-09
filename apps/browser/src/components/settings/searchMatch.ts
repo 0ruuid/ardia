@@ -14,6 +14,8 @@ export type SearchGroup<T extends Searchable = Searchable> = { pane: string; pan
 const FIELD_WEIGHTS = { title: 10, keywords: 8, section: 5, paneTitle: 4, description: 2 } as const;
 type Field = keyof typeof FIELD_WEIGHTS;
 
+const HAN = /\p{Script=Han}/u;
+
 const EXACT = 1;
 const PLURAL = 0.95;
 const PREFIX = 0.85;
@@ -26,7 +28,7 @@ export const normalize = (text: string) =>
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .replace(/[’']/g, "")
-    .replace(/[^a-z0-9⌘⌥⇧⌃]+/g, " ")
+    .replace(/[^\p{Script=Han}a-z0-9⌘⌥⇧⌃]+/giu, " ")
     .trim();
 
 const wordsOf = (text: string) => normalize(text).split(" ").filter(Boolean);
@@ -66,7 +68,7 @@ function tokenMatch(token: string, word: string): number {
   return 0;
 }
 
-type Prepared<T extends Searchable> = { entry: T; fields: [Field, string[], string][] };
+export type Prepared<T extends Searchable> = { entry: T; fields: [Field, string[], string][] };
 
 export function prepare<T extends Searchable>(entries: T[]): Prepared<T>[] {
   return entries.map((entry) => ({
@@ -110,10 +112,29 @@ function scoreEntry<T extends Searchable>(p: Prepared<T>, tokens: string[], phra
 
 const MIN_SCORE = 1.8;
 
+function searchHan<T extends Searchable>(index: Prepared<T>[], phrase: string, limit: number): SearchHit<T>[] {
+  const hits: SearchHit<T>[] = [];
+  for (const p of index) {
+    let best = 0;
+    for (const [field, , normalized] of p.fields) {
+      if (normalized && normalized.includes(phrase)) best = Math.max(best, FIELD_WEIGHTS[field]);
+    }
+    if (!best) continue;
+    const title = p.fields[0]![2];
+    if (title === phrase) best += 12;
+    else if (title.startsWith(phrase)) best += 8;
+    hits.push({ entry: p.entry, score: best });
+  }
+  hits.sort((a, b) => b.score - a.score);
+  const top = hits[0]?.score ?? 0;
+  return hits.filter((h) => h.score >= top * 0.3).slice(0, limit);
+}
+
 export function search<T extends Searchable>(index: Prepared<T>[], query: string, limit = 40): SearchHit<T>[] {
   const phrase = normalize(query);
   const tokens = phrase.split(" ").filter(Boolean);
   if (!tokens.length) return [];
+  if (HAN.test(phrase)) return searchHan(index, phrase, limit);
   const hits: SearchHit<T>[] = [];
   index.forEach((p) => {
     const score = scoreEntry(p, tokens, phrase);
