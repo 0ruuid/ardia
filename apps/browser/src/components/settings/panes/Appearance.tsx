@@ -27,6 +27,7 @@ export function AppearancePane() {
   const t = useT();
   const appearance = useSettings((s) => s.appearance);
   const spacesFollow = useSettings((s) => s.spacesFollowAppearance);
+  const adaptText = useSettings((s) => s.adaptTextToColor);
   const choose = (mode: Settings["appearance"]) => updateSettings({ appearance: mode });
   return (
     <View>
@@ -40,6 +41,9 @@ export function AppearancePane() {
         <Group>
           <Row anchor="appearance.spacesFollowAppearance">
             <Toggle value={spacesFollow} onChange={(v) => updateSettings({ spacesFollowAppearance: v })} />
+          </Row>
+          <Row anchor="appearance.adaptTextToColor">
+            <Toggle value={adaptText} onChange={(v) => updateSettings({ adaptTextToColor: v })} />
           </Row>
         </Group>
       </Box>
@@ -165,10 +169,16 @@ const FRAME_CONTROL = { alignItems: "center" } as const;
 function PageFramePicker() {
   const t = useT();
   const frame = useSettings((s) => s.pageFrame);
+  const borderless = useSettings((s) => s.borderlessMode);
+  const zeroInFullScreen = useSettings((s) => s.pageFrameZeroInFullScreen);
+  const zeroWhenTabsHidden = useSettings((s) => s.pageFrameZeroWhenTabsHidden);
   return (
     <>
       <SectionHeader title="Page Frame" />
       <Group>
+        <Row anchor="appearance.borderlessMode">
+          <Toggle value={borderless} accessibilityLabel="Borderless mode" onChange={(on) => updateSettings({ borderlessMode: on })} />
+        </Row>
         <Row anchor="appearance.pageFrame">
           <Box row gap="m" style={FRAME_CONTROL}>
             <View style={{ width: FRAME_SLIDER_WIDTH }}>
@@ -178,6 +188,22 @@ function PageFramePicker() {
               {frame === 0 ? t("None") : `${frame} pt`}
             </Text>
           </Box>
+        </Row>
+        <Row anchor="appearance.pageFrameZeroInFullScreen">
+          <Toggle
+            value={zeroInFullScreen}
+            disabled={borderless}
+            accessibilityLabel="Zero in full screen"
+            onChange={(on) => updateSettings(on ? { pageFrameZeroInFullScreen: true, pageFrameZeroWhenTabsHidden: true } : { pageFrameZeroInFullScreen: false })}
+          />
+        </Row>
+        <Row anchor="appearance.pageFrameZeroWhenTabsHidden">
+          <Toggle
+            value={zeroInFullScreen || zeroWhenTabsHidden}
+            disabled={borderless || zeroInFullScreen}
+            accessibilityLabel="Zero in full screen when tabs are hidden"
+            onChange={(on) => updateSettings({ pageFrameZeroWhenTabsHidden: on })}
+          />
         </Row>
       </Group>
     </>

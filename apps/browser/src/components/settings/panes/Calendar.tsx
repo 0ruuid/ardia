@@ -1,5 +1,5 @@
-import { type SystemCalendar, connectCalendar, setCalendarHidden, useCalendar } from "../../../state/live/calendar";
-import { Linking, View } from "react-native";
+import { type SystemCalendar, calendarBlocked, connectCalendar, openCalendarPrivacy, setCalendarHidden, useCalendar } from "../../../state/live/calendar";
+import { View } from "react-native";
 import { ALERT_LEADS, COUNTDOWN_LEADS, countdownLeadTitle } from "../../../state/live/meetings";
 import { updateCalendarSettings, useLive } from "../../../state/live/store";
 import { useSettings } from "../../../state/browser/hooks";
@@ -11,10 +11,10 @@ import { useT } from "../../../state/i18n";
 export function CalendarPane() {
   const t = useT();
   const settings = useLive((s) => s.calendar);
-  const { access, calendars } = useCalendar();
+  const { access, calendars, requesting, requestError } = useCalendar();
   const autoGroup = useSettings((s) => s.autoGroupMeetingTabs);
   const connected = access === "fullAccess" || access === "fixture";
-  const denied = access === "denied" || access === "restricted";
+  const blocked = calendarBlocked(access);
   const owned = calendars.filter((c) => c.owned);
   const others = calendars.filter((c) => !c.owned);
 
@@ -32,15 +32,18 @@ export function CalendarPane() {
               ? t("Development build: using calendar-fixture.json")
               : connected
                 ? t("Connected · {count}", { count: calendars.length === 1 ? t("1 calendar") : t("{count} calendars", { count: calendars.length }) })
-                : denied
-                  ? t("Ardia isn't allowed to read your calendars. Allow it in System Settings › Privacy & Security › Calendars.")
-                  : t("Not connected")
+                : blocked
+                  ? (requestError ?? t("Ardia isn't allowed to read your calendars. Allow it in System Settings › Privacy & Security › Calendars."))
+                  : (requestError ?? t("Not connected"))
           }
         >
-          {denied ? (
-            <Button title={t("Open System Settings")} onPress={() => void Linking.openURL("x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")} />
+          {blocked ? (
+            <Button title={t("Open System Settings")} onPress={openCalendarPrivacy} />
           ) : !connected ? (
-            <Button title={t("Connect Calendar…")} kind="primary" onPress={() => void connectCalendar()} />
+            <Box row gap="s">
+              {requestError ? <Button title={t("Open System Settings")} onPress={openCalendarPrivacy} /> : null}
+              <Button title={requesting ? t("Connecting…") : t("Connect Calendar…")} kind="primary" disabled={requesting} onPress={() => void connectCalendar()} />
+            </Box>
           ) : null}
         </Row>
       </Group>

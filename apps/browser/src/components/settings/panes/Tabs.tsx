@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { useTheme } from "../../ui/theme";
 import { useSettings, useTabLayout } from "../../../state/browser/hooks";
-import { chooseAutoHideTabs, chooseSidebarSide, chooseTabLayout, updateSettings } from "../../../state/settings/actions";
+import { chooseSidebarSide, chooseTabLayout, updateSettings } from "../../../state/settings/actions";
 import { splitLinkModifierOf, type PeekModifier, type Settings, type SplitLinkModifier } from "../../../state/settings/settings";
 import { Box, Button, Checkbox, DialogActions, DialogTitle, PopUp, Segmented, Sheet, space, Text, TextField, Toggle, type Option, type SegmentOption } from "../../ui";
 import { durationMinutes, durationParts, type DurationUnit } from "../../../lib/time";
@@ -84,17 +84,6 @@ const DURATION_UNITS: Option<DurationUnit>[] = [
   { value: "days", title: "Days" },
 ];
 
-function AutoHideTabsRow({ top }: { top: boolean }) {
-  const t = useT();
-  const on = useSettings((s) => s.autoHideTabs);
-  const edge = top ? "top edge" : "edge";
-  return (
-    <Row anchor="tabs.autoHideTabs" description={t("The tabs slide out of view and come back when you move the pointer to the window's {edge}. ⌘S turns it on or off from any window.", { edge: t(edge) })}>
-      <Toggle value={on} accessibilityLabel={t(setting("tabs.autoHideTabs").title)} onChange={chooseAutoHideTabs} />
-    </Row>
-  );
-}
-
 export function TabsPane() {
   const t = useT();
   const newTabOpens = useSettings((s) => s.newTabOpens);
@@ -113,7 +102,10 @@ export function TabsPane() {
           <LayoutChoice layout="top" title={t("Tab layout across the top of the window")} selected={top} />
         </Box>
         <Group>
-        <AutoHideTabsRow top={top} />
+          <SettingToggle
+            anchor="tabs.autoHideTabs"
+            description={t("In every window, the tabs slide out of view and come back when you move the pointer to the window's {edge}. ⌘S and View › Auto-Hide Tabs flip this same switch.", { edge: t(top ? "top edge" : "edge") })}
+          />
         <Row anchor="tabs.sidebarSide">
           <Segmented options={SIDEBAR_SIDES.map((o) => ({ ...o, title: t(o.title) }))} value={sidebarSide} onChange={chooseSidebarSide} />
         </Row>
@@ -121,6 +113,8 @@ export function TabsPane() {
         <SettingToggle anchor="tabs.showSidebarButton" />
         <SettingToggle anchor="tabs.showClearButton" />
         <SettingToggle anchor="tabs.balancedTopApps" />
+        <SettingToggle anchor="tabs.showUnreadCounts" />
+        <SettingToggle anchor="tabs.showTopAppBadges" />
         <SettingToggle anchor="tabs.fadeUnloadedTabs" />
         </Group>
       </Box>

@@ -1,4 +1,11 @@
 export const inline: Record<string, string> = {
+  "Nothing matches “{query}”. Try a setting's name or a shorter word, like “dark” or “downloads”.": "没有与“{query}”匹配的内容。请尝试设置名称或更短的词，例如“深色”或“下载”。",
+  "Also called “": "也称为“",
+  "Connecting…": "正在连接…",
+  "Redo Setup…": "重新设置…",
+  "Walk through import, look and layout again": "重新选择导入、外观和布局",
+  "In every window, the tabs slide out of view and come back when you move the pointer to the window's {edge}. ⌘S and View › Auto-Hide Tabs flip this same switch.": "在所有窗口中，标签页会滑出视图，指针移至窗口{edge}时重新显示。⌘S 和“显示 › 自动隐藏标签页”控制同一个开关。",
+  "Click Show Code. On your iPhone, open Ardia, tap Sync With Mac, and scan the code. For another Mac, you can also scan it with your iPhone’s camera and paste the words there with Universal Clipboard.": "点击“显示代码”。在 iPhone 上打开 Ardia，轻点“与 Mac 同步”并扫描代码。连接另一台 Mac 时，也可以用 iPhone 相机扫描，再通过通用剪贴板粘贴恢复短语。",
   "Permissions": "权限",
   "Sites without blocking": "不拦截的网站",
   "Never saved": "从不保存",
